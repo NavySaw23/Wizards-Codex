@@ -6,6 +6,7 @@ let character = null, buildings = [], interactZones = [];
 let interactableIndex = -1;
 let moveDirection = { left: false, right: false, forward: false, backward: false };
 let moveSpeed = 0.1;
+let boxLines; // Declare boxLines variable
 
 // Initialize the scene, camera, and objects
 function init() {
@@ -47,12 +48,10 @@ function init() {
         character.position.set(0, 1, 0);
         scene.add(character);
 
-        // Add a debug box for the character's bounding box
-        const debugGeometry = new THREE.BoxGeometry(1, 2, 1);
-        const debugMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        const debugBox = new THREE.Mesh(debugGeometry, debugMaterial);
-        debugBox.position.copy(character.position);
-        scene.add(debugBox);
+        // Create bounding box lines
+        createBoundingBoxLines();
+    }, undefined, function(error) {
+        console.error('An error occurred while loading the model:', error);
     });
 
     // Create buildings and interaction zones
@@ -79,6 +78,27 @@ function init() {
 
     // Resize event listener
     window.addEventListener('resize', onWindowResize, false);
+}
+
+// Create a bounding box helper
+function createBoundingBoxLines() {
+    if (character) {
+        const box = new THREE.Box3().setFromObject(character);
+        const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry().setFromPoints(box.getBoundingBox().getSize(new THREE.Vector3())));
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        boxLines = new THREE.LineSegments(edges, lineMaterial);
+        scene.add(boxLines);
+    }
+}
+
+// Update bounding box lines
+function updateBoundingBoxLines() {
+    if (boxLines && character) {
+        const box = new THREE.Box3().setFromObject(character);
+        boxLines.geometry.dispose(); // Dispose old geometry
+        const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry().setFromPoints(box.getBoundingBox().getSize(new THREE.Vector3())));
+        boxLines.geometry = edges; // Update geometry
+    }
 }
 
 // Handle keydown event for character movement
@@ -144,29 +164,26 @@ function animate() {
     requestAnimationFrame(animate);
 
     if (character) {
-        let rotationChanged = false;
-
         // Move character based on key presses and update rotation
         if (moveDirection.forward) {
             character.position.z -= moveSpeed;
             character.rotation.y = Math.PI; // Face forward
-            rotationChanged = true;
         }
         if (moveDirection.backward) {
             character.position.z += moveSpeed;
             character.rotation.y = 0; // Face backward
-            rotationChanged = true;
         }
         if (moveDirection.left) {
             character.position.x -= moveSpeed;
             character.rotation.y = Math.PI / 2; // Face left
-            rotationChanged = true;
         }
         if (moveDirection.right) {
             character.position.x += moveSpeed;
             character.rotation.y = -Math.PI / 2; // Face right
-            rotationChanged = true;
         }
+
+        // Update bounding box lines
+        updateBoundingBoxLines();
 
         // Move the camera with the player
         camera.position.x = character.position.x;
@@ -184,15 +201,19 @@ function animate() {
 function checkInteractionZones() {
     interactableIndex = -1; // Reset interaction zone index
 
-    for (let i = 0; i < interactZones.length; i++) {
-        const zone = interactZones[i];
-        const zoneBox = new THREE.Box3().setFromObject(zone);
+    if (character) {
+        // Update the character's bounding box
         const charBox = new THREE.Box3().setFromObject(character);
 
-        if (zoneBox.intersectsBox(charBox)) {
-            interactableIndex = i;
-            console.log(`Character inside interaction zone ${i}`);
-            break;
+        for (let i = 0; i < interactZones.length; i++) {
+            const zone = interactZones[i];
+            const zoneBox = new THREE.Box3().setFromObject(zone);
+
+            if (zoneBox.intersectsBox(charBox)) {
+                interactableIndex = i;
+                console.log(`Character inside interaction zone ${i}`);
+                break;
+            }
         }
     }
 }
