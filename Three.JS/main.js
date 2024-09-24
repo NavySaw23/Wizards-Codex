@@ -21,7 +21,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.style.backgroundImage = "url('./Images/pngtree-low-poly-fantasy-forest-cartoon-a-stunning-3d-rendering-of-a-picture-image_5575619.jpg')";
+    renderer.domElement.style.backgroundImage = "url('./Images/gamelevel1.png')";
     renderer.domElement.style.backgroundSize = 'cover';
     renderer.domElement.style.backgroundPosition = 'center';
     renderer.domElement.style.backgroundRepeat = 'no-repeat';
