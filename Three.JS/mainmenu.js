@@ -50,7 +50,7 @@ function init() {
 
         // Create a small circle below the character
         const circleGeometry = new THREE.CircleGeometry(0.6, 6); // Small circle
-        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0x8F00FF, side: THREE.DoubleSide });
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0x8F00FF, side: THREE.DoubleSide , transparent: true , opacity: 0});
         interactionCircle = new THREE.Mesh(circleGeometry, circleMaterial);
         interactionCircle.rotation.x = -Math.PI / 2; // Rotate to lie flat on the ground
         interactionCircle.position.set(character.position.x, 0.05, character.position.z);
