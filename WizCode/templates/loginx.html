@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock css %}
+
+{% block body %}
+<div class="main">
+    <div class="landing">
+        {%if messg%}
+        {%endif%}
+        <form action="/postsign/" method="post">
+            <h1>Invalid credentials, please try again</h1>
+            {% csrf_token %} Email :
+            <input type="email" name="email">
+            Password:
+            <input type="password" name="pass">
+            <input type="submit" value="SignIn">
+        </form>
+    </div>
+</div>
+{% endblock body %}

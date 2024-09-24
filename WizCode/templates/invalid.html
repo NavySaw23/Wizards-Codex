@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{%static 'css/home.css' %}">
+{% endblock css %}
+
+{% block body %}
+    <div class="main">
+        <div class="landing">
+            <div class="title">
+                <h1> Invalid Credentials </h1>
+                <a href="/login" class="button"> Try again </a>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{%static 'css/home.css' %}">
+{% endblock css %}
+
+{% block body %}
+    <div class="main">
+        <div class="landing">
+            <div class="logo">
+                <img src="{%static 'img/Logo_Dark.png' %}" alt="">
+            </div>
+            <div class="title">
+                <h1> Welcome {{email}}! </h1>
+                <a href="/gallery" class="button"> E-Gallery</a>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

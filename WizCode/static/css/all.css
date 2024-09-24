@@ -1,0 +1,25 @@
+:root {
+  --dark: #262626;
+  --light: #efefef;
+}
+
+.body{
+    height: 100vh;
+}
+.main{
+    padding:3vw 2vw;
+    height: 100vh;
+}
+
+.gallery {
+  margin: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  background-color: white;
+  flex-wrap: wrap;
+}
+
+
+@media (max-width: 768px) {
+}

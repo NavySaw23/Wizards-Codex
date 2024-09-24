@@ -1,0 +1,124 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+header {
+  /* background-color: #262626; */
+  background-color: white;
+  position: sticky;
+  top: 0;
+}
+
+.nav-logo{
+  display: inline;
+  height: 50px;
+  width: 60px;
+}
+/* .nav-back{
+  display: none;
+} */
+
+li {
+  list-style: none;
+}
+
+a {
+  /* color: white; */
+  color: #262626;
+  text-decoration: none;
+}
+
+.navbar {
+  min-height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 60px;
+}
+
+.nav-branding {
+  font-size: 2rem;
+}
+
+.nav-link {
+  transition: 0.7s ease;
+}
+
+.nav-link:hover {
+  background: linear-gradient(to bottom right, #F8A21C, #FE2F61);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hamburger {
+  display: none;
+  cursor: pointer;
+}
+
+.bar {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  /* background-color: white; */
+  background-color: #262626;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+  .hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate (45deg);
+  }
+  .hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate (45deg);
+  }
+  .nav-menu {
+    max-height: 0;
+    position: fixed;
+    left: -100%;
+    top: 70px;
+    gap: 0;
+    flex-direction: column;
+    background-color: #262626;
+    width: 100%;
+    text-align: center;
+    transition: max-height 0.4s ease-in-out; /* Add transition to max-height */
+  }
+  .nav-item {
+    margin: 16px 0;
+  }
+  .nav-menu.active {
+    left: 0;
+    max-height: 500px;
+  }
+  .nav-brand{
+    display: none;
+  }
+  .nav-link{
+    color: white;
+  }
+  /* .nav-back{
+    display: inline;
+    height: 25px;
+    width: auto;
+  }
+  .nav-logo{
+    display: none;
+  } */
+}
