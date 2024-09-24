@@ -21,7 +21,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.style.backgroundImage = "url('./Images/pngtree-low-poly-fantasy-forest-cartoon-a-stunning-3d-rendering-of-a-picture-image_5575619.jpg')";
+    renderer.domElement.style.backgroundImage = "url('')";
     renderer.domElement.style.backgroundSize = 'cover';
     renderer.domElement.style.backgroundPosition = 'center';
     renderer.domElement.style.backgroundRepeat = 'no-repeat';
@@ -52,7 +52,7 @@ function init() {
     counterElement.style.position = 'absolute';
     counterElement.style.top = '10px';
     counterElement.style.left = '10px';
-    counterElement.style.color = 'white';
+    counterElement.style.color = 'black';
     counterElement.style.fontSize = '24px';
     document.body.appendChild(counterElement);
     updateCounter();
@@ -62,7 +62,7 @@ function init() {
     timerElement.style.position = 'absolute';
     timerElement.style.top = '40px';
     timerElement.style.left = '10px';
-    timerElement.style.color = 'white';
+    timerElement.style.color = 'black';
     timerElement.style.fontSize = '24px';
     document.body.appendChild(timerElement);
 
