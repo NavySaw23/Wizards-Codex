@@ -1,0 +1,152 @@
+{% load static %}
+
+<style>
+    body {
+        margin: 0;
+    }
+</style>
+
+<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
+
+<script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/",
+        "cannon" : "https://unpkg.com/cannon@0.6.2/build/cannon.js"
+      }
+    }
+  </script>
+
+<script type="module">
+    import * as THREE from 'three'
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+    import { FontLoader } from 'three/addons/loaders/FontLoader.js'
+    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
+    import * as Cannon from 'cannon'
+
+    // Setup Three.js Scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add OrbitControls
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    // Create a light
+    const light = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(light);
+
+    // Create two spheres for collision
+    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const sphereMaterial1 = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    const sphereMaterial2 = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+
+    const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial1);
+    const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial2);
+
+    // Initialize variables for the character and its Cannon.js body
+    let Character;
+    let characterBody;
+
+    // Initialize the GLTFLoader
+    const loader = new GLTFLoader();
+loader.load("{%static 'models/robo_toon.glb'%}", function (gltf) {
+    Character = gltf.scene;
+    Character.scale.set(0.1, 0.1, 0.1); // Ensure correct scaling
+    Character.position.set(0, 0, 0);
+    scene.add(Character);
+
+    // Compute bounding box of the character model
+    const boundingBox = new THREE.Box3().setFromObject(Character);
+    const boxSize = boundingBox.getSize(new THREE.Vector3()); // Get size of the box
+
+    // Create Cannon.js body with a Box shape using the size of the bounding box
+    const characterShape = new CANNON.Box(new CANNON.Vec3(boxSize.x / 2, boxSize.y / 2, boxSize.z / 2));
+    characterBody = new CANNON.Body({
+        mass: 1, // Set mass to make it dynamic
+        position: new CANNON.Vec3(0, 0, 0) // Match the initial position
+    });
+    characterBody.addShape(characterShape);
+
+    // Add character body to the world
+    world.addBody(characterBody);
+}, undefined, function (error) {
+    console.error('An error occurred while loading the model:', error);
+});
+
+
+
+    // Position the spheres
+    sphere1.position.set(-3, 0, 0);
+    sphere2.position.set(3, 0, 0);
+    scene.add(sphere1);
+    scene.add(sphere2);
+
+    // Setup Cannon.js world
+    const world = new CANNON.World();
+    world.gravity.set(0, 0, 0); // No gravity
+
+    // Create physical bodies for the spheres
+    const radius = 1;
+    const sphereBody1 = new CANNON.Body({
+        mass: 1,
+        position: new CANNON.Vec3(-10, 0, 0)
+    });
+    const sphereBody2 = new CANNON.Body({
+        mass: 1,
+        position: new CANNON.Vec3(10, 0, 0)
+    });
+
+    // Create sphere shapes
+    const sphereShape = new CANNON.Sphere(radius);
+    sphereBody1.addShape(sphereShape);
+    sphereBody2.addShape(sphereShape);
+
+    // Set initial velocities
+    sphereBody1.velocity.set(1, 0, 0); // Move to the right
+    sphereBody2.velocity.set(-1, 0, 0); // Move to the left
+
+    // Add bodies to the world
+    world.addBody(sphereBody1);
+    world.addBody(sphereBody2);
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+
+        // Step the physics world
+        world.step(1 / 60);
+
+        // Update Three.js mesh positions to match Cannon.js bodies
+        sphere1.position.copy(sphereBody1.position);
+        sphere1.quaternion.copy(sphereBody1.quaternion);
+
+        sphere2.position.copy(sphereBody2.position);
+        sphere2.quaternion.copy(sphereBody2.quaternion);
+
+        // Update character position and rotation if loaded
+        if (Character && characterBody) {
+            Character.position.copy(characterBody.position);
+            Character.quaternion.copy(characterBody.quaternion);
+        }
+
+        // Render the scene
+        renderer.render(scene, camera);
+    }
+
+    camera.position.z = 5;
+    animate();
+
+    // Handle window resizing
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>

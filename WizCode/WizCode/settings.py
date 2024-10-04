@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'projects',
     'login',
     'home',
+    'levels',
     'widget_tweaks',
 ]
 
