@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from home.views import home_view
 # from login.views import login_view, postsign_view
-from projects.views import loginView, registrationView, logoutView
+from projects.views import loginView, registrationView, logoutView,update_flower_count,get_user_data
 from levels.views import lvl_view_1, lvl_view_2
 
 urlpatterns = [
@@ -33,6 +33,9 @@ urlpatterns = [
     path('logout/', logoutView, name='logout'),
     path('level1/', lvl_view_1, name='lvl_1'),
     path('level2/', lvl_view_2, name='lvl_2'),
+    path('update_flower_count/', update_flower_count, name='update_flower_count'),
+    path('get_user_data/', get_user_data, name='get_user_data'),
+
 
     
     path('admin/', admin.site.urls),

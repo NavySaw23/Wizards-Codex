@@ -1,5 +1,33 @@
 {% load static %}
 
+{% comment %} 
+
+example to print values recieved from views.py 
+
+<h2>Flower Information</h2>
+{% if flower_info %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quality</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flower in flower_info %}
+                <tr>
+                    <td>{{ flower.ID }}</td>
+                    <td>{{ flower.Quality }}</td>
+                    <td>{{ flower.Size }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No flower data available.</p>
+{% endif %} {% endcomment %}
+
 <style>
     body {
         margin: 0;
@@ -35,6 +63,7 @@
     let counterElement, streakElement, gameOverElement, timerElement, bonusElement;
     let gameDuration = 30;
     let startTime, elapsedTime;
+    let gameEnded = false; // to prevent multiple object creation 
 
     init();
     animate();
@@ -267,20 +296,68 @@
         }, 3000);
     }
 
+    
+
     function endGame() {
-        const totalFlowers = flowerCount + max_streak; // Total flowers including max streak
+        // Prevent multiple calls
+        if (gameEnded) return;
+        gameEnded = true;
+
+        const totalFlowers = flowerCount + max_streak;
         gameOverElement.innerHTML = `
-        Game Over!<br>
-        Total Flowers Collected: ${flowerCount}<br>
-        Max Streak: ${max_streak}<br>
-        Total Flowers: ${totalFlowers}
-    `;
+            Game Over!<br>
+            Total Flowers Collected: ${flowerCount}<br>
+            Max Streak: ${max_streak}<br>
+            Total Flowers: ${totalFlowers}
+        `;
         gameOverElement.style.display = 'block';
+
+        // Send data to server (only once)
+        fetch('/update_flower_count/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                flowerCount: totalFlowers
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+        })
+        .catch(error => {
+            console.error('Error sending data:', error);
+        });
+
+        // Print final game data to console
+        console.log('Final Game Stats:', {
+            flowerCount: flowerCount,
+            maxStreak: max_streak,
+            totalFlowers: totalFlowers
+        });
     }
 
-    window.addEventListener('resize', function () {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-</script>
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+        window.addEventListener('resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
