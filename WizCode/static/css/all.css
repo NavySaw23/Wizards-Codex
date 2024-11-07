@@ -11,14 +11,6 @@
     height: 100vh;
 }
 
-.gallery {
-  margin: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  background-color: white;
-  flex-wrap: wrap;
-}
 
 
 @media (max-width: 768px) {

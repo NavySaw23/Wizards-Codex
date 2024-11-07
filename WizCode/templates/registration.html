@@ -4,11 +4,13 @@
 
 {%load static%}
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/form.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<script src="{% static 'js/auth.js' %}"></script>
 {% endblock css %}
 
 {% block body %}
-  {% load widget_tweaks %}
+{% load widget_tweaks %}
+<div id="auth-container">
   <div class="jumbotron">
     <h2>User Registration</h2>
     {% if note %}
@@ -36,5 +38,5 @@
       <input type="submit" class="btn btn-primary btn-sm" value="Sign Up">
     </form>
   </div>
-
+</div>
 {% endblock %}

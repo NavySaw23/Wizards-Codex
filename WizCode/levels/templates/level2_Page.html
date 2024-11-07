@@ -6,8 +6,6 @@
 
 {% block body %}
     {% if request.user.is_authenticated %}
-    {% include 'mainMenu.html' %}
-    {% else %}
-    {% include 'landing.html' %}
+        {% include 'level2.html'%}
     {% endif %}
 {% endblock body %}

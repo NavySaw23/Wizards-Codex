@@ -5,9 +5,11 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def lvl_view_1(request):
-    sizex = 5
-    context = {
-       's1'  : sizex
+   context = {
+   }
+   return render(request, 'level1_Page.html', context)
 
-    }
-    return render(request, 'level1_Page.html', context)
+def lvl_view_2(request):
+   context = {
+   }
+   return render(request, 'level2_Page.html', context)

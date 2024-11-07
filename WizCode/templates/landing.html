@@ -1,0 +1,12 @@
+{% load static %}
+
+
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+<script src="{% static 'js/landing.js' %}"></script>
+
+<div class="landing" id="background-effect">
+    <h2 id="wel">Welcome to</h1>
+    <h1 id="title">Wizard's Codex</h1>
+    <a href="{% url 'login' %}" class="btn">Start</a>
+    <div class="glow"></div>
+</div>

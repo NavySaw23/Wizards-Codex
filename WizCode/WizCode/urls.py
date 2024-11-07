@@ -23,7 +23,7 @@ from django.urls import path
 from home.views import home_view
 # from login.views import login_view, postsign_view
 from projects.views import loginView, registrationView, logoutView
-from levels.views import lvl_view_1
+from levels.views import lvl_view_1, lvl_view_2
 
 urlpatterns = [
     path('', home_view, name='home'),
@@ -32,6 +32,8 @@ urlpatterns = [
     path('login/', loginView, name='login'),
     path('logout/', logoutView, name='logout'),
     path('level1/', lvl_view_1, name='lvl_1'),
+    path('level2/', lvl_view_2, name='lvl_2'),
+
     
     path('admin/', admin.site.urls),
 ]

@@ -23,12 +23,17 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
     let scene, camera, renderer;
-    let basket, flowers = [];
+    let basket, cube, flowers = [];
     let basketSpeed = 0.5;
+    let cubeSpeed = 0.13;
     let flowerSpawnInterval = 1000;
     let flowerCount = 0;
-    let counterElement, gameOverElement, timerElement;
-    let gameDuration = 30; // 30 seconds
+    let normalFlowerCount = 0; // Count for normal flowers
+    let freshFlowerCount = 0; // Count for fresh flowers
+    let streakCount = 0;
+    let max_streak = 0;
+    let counterElement, streakElement, gameOverElement, timerElement, bonusElement;
+    let gameDuration = 30;
     let startTime, elapsedTime;
 
     init();
@@ -42,10 +47,7 @@
 
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.domElement.style.backgroundImage = "url('')";
-        renderer.domElement.style.backgroundSize = 'cover';
-        renderer.domElement.style.backgroundPosition = 'center';
-        renderer.domElement.style.backgroundRepeat = 'no-repeat';
+        renderer.domElement.style.backgroundColor = 'Black';
         document.body.appendChild(renderer.domElement);
 
         // Lighting
@@ -65,15 +67,23 @@
             scene.add(basket);
         });
 
+        // Cube for collision detection
+        const geometry = new THREE.BoxGeometry(1, 1, 1);  // Cube size
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0 });
+        cube = new THREE.Mesh(geometry, material);
+        cube.position.y = -1.5;  // Same initial y-position as the basket
+        cube.scale.set(1, 0.1, 0.5);
+        scene.add(cube);
+
         // Flower spawn interval
         setInterval(spawnFlower, flowerSpawnInterval);
 
         // Counter element
         counterElement = document.createElement('div');
         counterElement.style.position = 'absolute';
-        counterElement.style.top = '75px';
+        counterElement.style.top = '110px';
         counterElement.style.left = '10px';
-        counterElement.style.color = 'white';
+        counterElement.style.color = 'White';
         counterElement.style.fontSize = '24px';
         document.body.appendChild(counterElement);
         updateCounter();
@@ -81,11 +91,21 @@
         // Timer element
         timerElement = document.createElement('div');
         timerElement.style.position = 'absolute';
-        timerElement.style.top = '100px';
+        timerElement.style.top = '140px';
         timerElement.style.left = '10px';
-        timerElement.style.color = 'white';
+        timerElement.style.color = 'White';
         timerElement.style.fontSize = '24px';
         document.body.appendChild(timerElement);
+
+        // Streak element
+        streakElement = document.createElement('div');
+        streakElement.style.position = 'absolute';
+        streakElement.style.top = '170px';
+        streakElement.style.left = '10px';
+        streakElement.style.color = 'White';
+        streakElement.style.fontSize = '24px';
+        document.body.appendChild(streakElement);
+        updateStreak();
 
         // Game over element
         gameOverElement = document.createElement('div');
@@ -101,31 +121,78 @@
         gameOverElement.innerHTML = 'Game Over!<br>Total Flowers Collected: ' + flowerCount;
         document.body.appendChild(gameOverElement);
 
-        // timer
+        // Bonus element for funky animation
+        bonusElement = document.createElement('div');
+        bonusElement.style.position = 'absolute';
+        bonusElement.style.top = '40%';
+        bonusElement.style.left = '50%';
+        bonusElement.style.transform = 'translate(-50%, -50%)';
+        bonusElement.style.color = 'green';
+        bonusElement.style.fontSize = '48px';
+        bonusElement.style.fontWeight = 'bold';
+        bonusElement.style.textAlign = 'center';
+        bonusElement.style.display = 'none'; // Initially hidden
+        document.body.appendChild(bonusElement);
+
+        // Timer
         startTime = Date.now();
 
         // Keyboard controls
         document.addEventListener('keydown', moveBasket);
     }
 
+    // Function to randomly spawn flowers
     function spawnFlower() {
         const loader = new GLTFLoader();
-        loader.load("{%static 'models/flower_red.glb'%}", function (gltf) {
-            const flower = gltf.scene;
-            flower.position.set(Math.random() * 4 - 2, 3, 0);
-            flower.scale.set(0.2, 0.2, 0.2);
+        const flowerType = Math.random(); // Random value to decide flower type
 
-            flowers.push(flower);
-            scene.add(flower);
-        });
+        if (flowerType < 0.6) { // 60% chance for normal flower
+            loader.load("{%static 'models/flower_red.glb'%}", function (gltf) {
+                const flower = gltf.scene;
+                flower.type = 'normal';
+                flower.position.set(Math.random() * 4 - 2, 3, 0);
+                flower.scale.set(0.2, 0.2, 0.2);
+                flowers.push(flower);
+                scene.add(flower);
+            });
+        } else if (flowerType < 0.8) { // 20% chance for fresh flower
+            loader.load("{%static 'models/flower_green.glb'%}", function (gltf) {
+                const flowerFresh = gltf.scene;
+                flowerFresh.type = 'fresh';
+                flowerFresh.position.set(Math.random() * 4 - 2, 3, 0);
+                flowerFresh.scale.set(0.2, 0.2, 0.2);
+                flowers.push(flowerFresh);
+                scene.add(flowerFresh);
+            });
+        } else if (flowerType < 0.9) { // 10% chance for bonus flower
+            loader.load("{%static 'models/flower_bonus.glb'%}", function (gltf) {
+                const flowerBonus = gltf.scene;
+                flowerBonus.type = 'bonus';
+                flowerBonus.position.set(Math.random() * 4 - 2, 3, 0);
+                flowerBonus.scale.set(0.2, 0.2, 0.2);
+                flowers.push(flowerBonus);
+                scene.add(flowerBonus);
+            });
+        } else { // 10% chance for penalty flower
+            loader.load("{%static 'models/flower_penalty.glb'%}", function (gltf) {
+                const flowerPenalty = gltf.scene;
+                flowerPenalty.type = 'penalty';
+                flowerPenalty.position.set(Math.random() * 4 - 2, 3, 0);
+                flowerPenalty.scale.set(0.2, 0.2, 0.2);
+                flowers.push(flowerPenalty);
+                scene.add(flowerPenalty);
+            });
+        }
     }
 
     function moveBasket(event) {
-        if (basket) {
+        if (basket && cube) {
             if (event.key === 'ArrowLeft' || event.key === 'a') {
                 basket.position.x -= basketSpeed;
+                cube.position.x -= cubeSpeed;  // Move the cube along with the basket
             } else if (event.key === 'ArrowRight' || event.key === 'd') {
                 basket.position.x += basketSpeed;
+                cube.position.x += cubeSpeed;  // Move the cube along with the basket
             }
         }
     }
@@ -134,7 +201,7 @@
         requestAnimationFrame(animate);
 
         // Calculate elapsed time
-        elapsedTime = (Date.now() - startTime) / 1000; // Convert to seconds
+        elapsedTime = (Date.now() - startTime) / 1000;
         let remainingTime = Math.max(gameDuration - elapsedTime, 0);
         timerElement.textContent = 'Time Left: ' + remainingTime.toFixed(1) + 's';
 
@@ -147,21 +214,40 @@
         flowers.forEach(flower => {
             flower.position.y -= 0.02;
 
-            // Check for collision
-            if (flower.position.y < -2 && basket && Math.abs(flower.position.x - basket.position.x) < 3) {
+            // Check for collision with the cube (instead of basket)
+            if (flower.position.y < -2 && cube && Math.abs(flower.position.x - cube.position.x) < 1) {
                 if (!flower.collected) {
                     flower.collected = true;
-                    flowerCount++;
-                    updateCounter();
+                    if (flower.type === 'normal') {
+                        flowerCount++;
+                        streakCount++;
+                        updateCounter();
+                    } else if (flower.type === 'bonus') {
+                        flowerCount++;
+                        gameDuration += 10;
+                        showMessage('Bonus Flower Collected! +10 seconds');
+                    } else if (flower.type === 'penalty') {
+                        gameDuration = Math.max(gameDuration - 5, 0);
+                        streakCount = 0;
+                        showMessage('Penalty Flower! -5 seconds and streak reset');
+                    }
+
+                    if (streakCount > max_streak) {
+                        max_streak = streakCount;
+                    }
+                    updateStreak();
                 }
                 scene.remove(flower);
             } else if (flower.position.y < -3.5) {
+                if (!flower.collected && flower.type === 'normal') {
+                    streakCount = 0;
+                    updateStreak();
+                }
                 scene.remove(flower);
             }
         });
 
-        flowers = flowers.filter(flower => flower.position.y > -3.5);
-
+        // Render the scene
         renderer.render(scene, camera);
     }
 
@@ -169,10 +255,32 @@
         counterElement.textContent = 'Flowers Collected: ' + flowerCount;
     }
 
-    function endGame() {
-        gameOverElement.innerHTML = 'Game Over!<br>Total Flowers Collected: ' + flowerCount;
+    function updateStreak() {
+        streakElement.textContent = 'Current Streak: ' + streakCount + ' | Max Streak: ' + max_streak;
+    }
 
+    function showMessage(message) {
+        bonusElement.textContent = message;
+        bonusElement.style.display = 'block';
+        setTimeout(() => {
+            bonusElement.style.display = 'none';
+        }, 3000);
+    }
+
+    function endGame() {
+        const totalFlowers = flowerCount + max_streak; // Total flowers including max streak
+        gameOverElement.innerHTML = `
+        Game Over!<br>
+        Total Flowers Collected: ${flowerCount}<br>
+        Max Streak: ${max_streak}<br>
+        Total Flowers: ${totalFlowers}
+    `;
         gameOverElement.style.display = 'block';
     }
 
+    window.addEventListener('resize', function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 </script>

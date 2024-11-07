@@ -29,6 +29,11 @@
 
 <script type="module">
 
+    let debugmode = false;
+    let orthomode = false;
+    // debugmode = true;
+    // orthomode = true;
+
     // ---Imports----------------------------------------------------------------
     import * as THREE from 'three'
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
@@ -43,8 +48,14 @@
     scene.background = new THREE.Color(0x87CEEB);
 
     let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 10, 10);
+    camera.position.set(0, 500, 0);
     camera.lookAt(0, 0, 0);
+
+    if (orthomode) {
+        camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 0.1, 1000);
+        camera.position.set(0, 500, 0);
+        camera.lookAt(0, 0, 0);
+    }
 
     let renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -58,7 +69,7 @@
     // controlHelper()
 
     const axesHelper = new THREE.AxesHelper(5);
-    scene.add(axesHelper);
+    // scene.add(axesHelper);
 
     const loader = new GLTFLoader();
     const fontLoader = new FontLoader();
@@ -69,10 +80,19 @@
     let groundBody, groundMesh
     let CharacterBody, CharacterMesh, CharacterModel, CharacterSpeed = 20, modelLoaded = false;
     let CharacterVelocity = new CANNON.Vec3(0, 0, 0);
-    let ColliderOpacity = 0.0;
+    let ColliderOpacity = 0;
 
     let InteractorMesh_L1, InteractorBody_L1
+    let InteractorMesh_L2, InteractorBody_L2
 
+
+
+    if (debugmode) {
+        ColliderOpacity = 0.8;
+    }
+    else {
+
+    }
 
 
 
@@ -90,6 +110,8 @@
         addCharacter();
 
         Level1(-2, 0, -30)
+        Level2(150, -1, -80)
+
 
         handleCharacterMovement();
     }
@@ -99,11 +121,12 @@
 
         CharacterMesh.position.copy(CharacterBody.position);
 
-        if (!isOrbiting) {
+        if (!isOrbiting && !debugmode) {
             camera.position.x = CharacterMesh.position.x;
-            camera.position.y = CharacterMesh.position.y + 10;
+            camera.position.y = CharacterMesh.position.y + 5;
             camera.position.z = CharacterMesh.position.z + 20;
             camera.lookAt(CharacterMesh.position);
+            camera.position.y += 10;
         }
 
 
@@ -144,17 +167,37 @@
     function interactions() {
         // Check for collision between CharacterBody and InteractorBody_L1
         const characterBox = new THREE.Box3().setFromObject(CharacterMesh);
-        const interactorBox = new THREE.Box3().setFromObject(InteractorMesh_L1);
-        
-        if (characterBox.intersectsBox(interactorBox)) {
-            InteractorMesh_L1.material.color.set(0x800080); // Purple
+        const interactorBox_L1 = new THREE.Box3().setFromObject(InteractorMesh_L1);
+        const interactorBox_L2 = new THREE.Box3().setFromObject(InteractorMesh_L2);
+
+        if (characterBox.intersectsBox(interactorBox_L1)) {
+            InteractorMesh_L1.material.color.set(0x790deb);
+            InteractorMesh_L1.material.emissive.set(0x790deb);
+            InteractorMesh_L1.material.emissiveIntensity = 5;
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter') {
                     window.location.href = "/level1";
                 }
             });
         } else {
-            InteractorMesh_L1.material.color.set(0x008000); // Green
+            InteractorMesh_L1.material.color.set(0x008000);
+            InteractorMesh_L1.material.emissive.set(0x790deb00);
+            InteractorMesh_L1.material.emissiveIntensity = 0;
+        }
+
+        if (characterBox.intersectsBox(interactorBox_L2)) {
+            InteractorMesh_L2.material.color.set(0x790deb);
+            InteractorMesh_L2.material.emissive.set(0x790deb);
+            InteractorMesh_L2.material.emissiveIntensity = 5;
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    window.location.href = "/level2";
+                }
+            });
+        } else {
+            InteractorMesh_L2.material.color.set(0x008000);
+            InteractorMesh_L2.material.emissive.set(0x790deb00);
+            InteractorMesh_L2.material.emissiveIntensity = 0;
         }
     }
 
@@ -210,9 +253,7 @@
         updateCharacterVelocity();
     }
 
-
     // ---Helper-Functions------------------------------------------------------
-
 
     function controlHelper() {
 
@@ -235,12 +276,12 @@
         isOrbiting = false;
     });
 
-    function text(x, y, z, string) {
+    function text(x, y, z, string, size) {
         const fontLoader = new FontLoader();
         fontLoader.load("{%static 'Magic_School.json'%}", function (font) {
             const textGeometry = new TextGeometry(string, {
                 font: font,
-                size: 2,
+                size: size,
                 height: 0.3,
                 curveSegments: 12,
             });
@@ -279,12 +320,13 @@
         world.addBody(groundBody);
     }
 
-
     function addCharacter() {
         const CharacterGeometry = new THREE.BoxGeometry(2, 2, 2);
         const CharacterMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: ColliderOpacity });
         CharacterMesh = new THREE.Mesh(CharacterGeometry, CharacterMaterial);
-        scene.add(CharacterMesh);
+        if (debugmode) {
+            scene.add(CharacterMesh);
+        }
 
         const CharacterShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
         CharacterBody = new CANNON.Body({
@@ -316,13 +358,15 @@
         // Convert rotation from degrees to radians
         const rotationYRad = (rotationYDeg * Math.PI) / 180;
 
-        // Create the Three.js mesh
-        const obstacleGeometry = new THREE.BoxGeometry(length, 20, breadth);
-        const obstacleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: ColliderOpacity });
-        const obstacleMesh = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
-        obstacleMesh.position.set(x, y + 10, z);
-        obstacleMesh.rotation.y = rotationYRad;
-        scene.add(obstacleMesh);
+        if (debugmode) {
+            // Create the Three.js mesh
+            const obstacleGeometry = new THREE.BoxGeometry(length, 20, breadth);
+            const obstacleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: ColliderOpacity });
+            const obstacleMesh = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+            obstacleMesh.position.set(x, y + 10, z);
+            obstacleMesh.rotation.y = rotationYRad;
+            scene.add(obstacleMesh);
+        }
 
         // Create the Cannon.js body
         const obstacleShape = new CANNON.Box(new CANNON.Vec3(length / 2, 10, breadth / 2));
@@ -371,19 +415,78 @@
         const Interactor_L1Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
         InteractorMesh_L1 = new THREE.Mesh(InteractorShape_L1, Interactor_L1Material);
         InteractorMesh_L1.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
-        InteractorMesh_L1.position.set(x + 1.5, y - 0.15, z); // Position the zones as needed
+        InteractorMesh_L1.position.set(x + 1.5, y - 0.15, z); // Position the InteractorMesh_L1s as needed
         const Hexsize = 1.65;
 
         InteractorMesh_L1.scale.set(Hexsize, Hexsize, Hexsize);
         scene.add(InteractorMesh_L1);
 
         // title
-        text(-12, 10, -16, "Chapter 1 - Data Collection");
+        text(-12, 10, -16, "Chapter 1 - Data Collection", 2);
+        text(7, 4, -42, "5", 1);
 
     }
 
+    function Level2(x, y, z) {
+        loader.load("{%static 'models/school.glb'%}", function (gltf) {
+            const gardenModel = gltf.scene;
+            gardenModel.scale.set(1, 1, 1);
+            gardenModel.position.set(x, y, z);
+            gardenModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.opacity = 1;
+                    if (debugmode) {
+                        child.material.opacity = 0.5;
+                    }
+                    child.material.transparent = true;
+                }
+            });
+            scene.add(gardenModel);
+        }, undefined, function (error) {
+            console.error('An error occurred while loading the model:', error);
+        });
+
+
+        //colliders
+        // addObstacle(LR, UD, FB, rotationYDeg, s_lr, s_fb)  
+        addObstacle(27 + x, 0 + y, -65 + z, 0, 150, 50);
+        addObstacle(100 + x, 0 + y, -15 + z, 0, 40, 50);
+        addObstacle(80 + x, 0 + y, 30 + z, 55, 50, 20);
+        addObstacle(58 + x, 0 + y, 50 + z, 15, 35, 20);
+        addObstacle(18 + x, 0 + y, 47 + z, 12, 40, 20);
+        addObstacle(-12 + x, 0 + y, 52 + z, -10, 25, 20);
+        addObstacle(-40 + x, 0 + y, 42 + z, -10, 35, 20);
+        addObstacle(-70 + x, 0 + y, 28 + z, 2, 45, 20);
+        addObstacle(-100 + x, 0 + y, 20 + z, -20, 40, 20);
+        addObstacle(-95 + x, 0 + y, 0 + z, 5, 80, 25);
+        addObstacle(-80 + x, 0 + y, -20 + z, 4, 60, 25);
+        addObstacle(-45 + x, 0 + y, -35 + z, 4, 20, 20);
+
+        addObstacle(-130 + x, 0 + y, 18 + z, 4, 20, 20);
+        addObstacle(100 + x, 0 + y, 15 + z, 35, 20, 20);
+        addObstacle(-2 + x, 0 + y, 55 + z, 45, 20, 20);
+
+
+
+        // interactor
+        const InteractorShape_L2 = new THREE.CylinderGeometry(15, 15, 0.2, 6); // 
+        const Interactor_L2Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
+        InteractorMesh_L2 = new THREE.Mesh(InteractorShape_L2, Interactor_L2Material);
+        InteractorMesh_L2.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
+        // InteractorMesh_L2.rotation.z = Math.PI / 2;
+        InteractorMesh_L2.position.set(x - 100, y + 1.15, z + 20); // Position the InteractorMesh_L1s as needed
+        const Hexsize = 2.65;
+
+        InteractorMesh_L2.scale.set(Hexsize, Hexsize, Hexsize);
+        scene.add(InteractorMesh_L2);
+
+        // title
+        // text(-12, 10, -16, "Chapter 1 - Data Collection", 2);
+
+    }
 
     start();
     update();
     animate();
+
 </script>
