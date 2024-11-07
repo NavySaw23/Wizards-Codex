@@ -1,5 +1,29 @@
 {% load static %}
 
+{% if flower_info %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quality</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flower in flower_info %}
+            <tr>
+                <td>{{ flower.ID }}</td>
+                <td>{{ flower.Quality }}</td>
+                <td>{{ flower.Size }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No flower data available</p>
+{% endif %}
+
+
 <style>
     body {
         margin: 0;
