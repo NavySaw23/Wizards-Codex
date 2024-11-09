@@ -7,6 +7,7 @@ class FlowerData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     data = models.JSONField()
     score = models.IntegerField(default=0)
+    level = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

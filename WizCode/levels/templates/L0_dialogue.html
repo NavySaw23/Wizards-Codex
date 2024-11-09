@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Novel Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 90vh;
+            background: url("{%static 'img/school3.jpg'%}") center/cover no-repeat;
+        }
+
+        .character-area {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 100px;
+            margin-top: 300px;
+        }
+
+        .character {
+            position: relative;
+        }
+
+        .character img {
+            width: 250px;
+            height: auto;
+            transition: transform 0.3s ease;
+            opacity: 0.8;
+            transform: scale(1.2);
+        }
+
+        .character.active img {
+            transform: scale(1.5);
+            opacity: 1;
+        }
+
+        .dialog-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .blue {
+            background-color: #3100a5;
+        }
+
+        .red {
+            background-color: #dd4588;
+        }
+
+        .dialog-box::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 10px;
+            background-color: white;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -10px;
+            z-index: 1;
+        }
+
+        .name-box {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            color: #000;
+            position: absolute;
+            top: -50px;
+        }
+
+        .dialog-text {
+            font-size: 2rem;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div id="game-container">
+        <!-- Character Images -->
+        <div class="character-area">
+            <div id="main-character" class="character active">
+                <img src="{%static 'img/MMC.png'%}" alt="Main Character">
+            </div>
+            <div id="npc-character" class="character">
+                <img src="{%static 'img/FMC.png'%}" alt="NPC Character">
+            </div>
+        </div>
+
+        <!-- Dialog Box -->
+        <div class="dialog-box" id="dia">
+            <div id="name-box" class="name-box">Main Character</div>
+            <div id="dialog-text" class="dialog-text">This is a placeholder for dialog text.</div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('wheel', function (event) {
+            event.preventDefault();
+        });
+
+        const dialogData = [
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Hush, Finally here",
+                    "That was a long train ride"
+                ]
+            },
+            {
+                character: '???',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Oh Hi! Welcome to Ailvermourny!",
+                    "I'm your classmate"
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Oh hello! Nice to meet you",
+                    "I'm joining late, can you tell me when the next class is?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "We still have some time, but the class is on Data Collection",
+                    "You're required to bring Asphodel Flowers to class",
+                    "There's a Tree in the garden that grows those flowers",
+                    "Why don't you go check it out?",
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Oh thanks for the info, How do I get the flowers?",
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Enter the garden and press the ENTER button to start collecting flowers",
+                    "Press ARROW KEYS to move the basket left and right",
+                    "Be careful of the RED Flowers, they are dangerous",
+                    "But BLUE flowers are good and give you bonus time!",
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Okay got it! Asphodel garden here I come",
+                ]
+            },
+
+
+        ];
+
+        let currentDialogIndex = 0; // Track the current character
+        let currentLineIndex = 0;   // Track the current dialog line of the character
+        let isTypingComplete = false; // Track if current dialog line is fully typed
+
+        // Function to display dialog with letter-by-letter effect
+        function typeText(textElement, text, onComplete) {
+            textElement.textContent = ''; // Clear previous text
+            isTypingComplete = false;
+            let index = 0;
+
+            function addNextLetter() {
+                if (index < text.length) {
+                    textElement.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(addNextLetter, 40); // Adjust speed
+                } else {
+                    isTypingComplete = true;
+                    if (onComplete) onComplete();
+                }
+            }
+
+            addNextLetter();
+        }
+
+        // Function to render the dialog
+        function renderDialog() {
+            const nameBox = document.getElementById('name-box');
+            const dialogText = document.getElementById('dialog-text');
+            const mainCharacter = document.getElementById('main-character');
+            const npcCharacter = document.getElementById('npc-character');
+
+            const diabox = document.getElementById('dia');
+            // 
+            // Get current dialog and line
+            const dialog = dialogData[currentDialogIndex];
+            const dialogLine = dialog.dialog[currentLineIndex];
+
+            // Set name
+            nameBox.textContent = dialog.character;
+
+            // Highlight the speaking character
+            if (dialog.character === 'You') {
+                mainCharacter.classList.add('active');
+                npcCharacter.classList.remove('active');
+                diabox.classList.add('blue');
+                diabox.classList.remove('red');
+            } else {
+                mainCharacter.classList.remove('active');
+                npcCharacter.classList.add('active');
+                diabox.classList.add('red');
+                diabox.classList.remove('blue');
+            }
+
+            // Start typing effect
+            typeText(dialogText, dialogLine);
+        }
+
+        // Move to next line of dialog or switch character
+        function nextDialog() {
+            // Only proceed if the current line is fully typed
+            if (!isTypingComplete) return;
+
+            const currentDialog = dialogData[currentDialogIndex];
+            if (currentLineIndex < currentDialog.dialog.length - 1) {
+                // Move to next line of current character's dialog
+                currentLineIndex++;
+            } else {
+                // Check if this is the last dialog
+                if (currentDialogIndex === dialogData.length - 1) {
+                    // Refresh the page or do something else
+                    location.reload();
+                    return;
+                } else {
+                    // Move to the next character's dialog
+                    currentDialogIndex++;
+                    currentLineIndex = 0; // Reset to the first line of the next character
+                }
+            }
+            renderDialog();
+        }
+
+        // Initial render
+        renderDialog();
+
+        // Handle 'Enter' key to move to the next dialog line
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                nextDialog();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

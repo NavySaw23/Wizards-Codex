@@ -111,15 +111,32 @@ def update_flower_count(request):
         # Save the data and score for the current user
         if request.user.is_authenticated:
             try:
-                flower_data_obj = FlowerData.objects.create(user=request.user, data=flower_data, score=score)
-                print(f"Data saved for user: {request.user.username}")
-                print(f"Saved object ID: {flower_data_obj.id}")
+                # Check if a FlowerData object already exists for the user
+                flower_data_obj = FlowerData.objects.filter(user=request.user).first()
+                
+                if flower_data_obj:
+                    # If level is 1, update it to 2
+                    if flower_data_obj.level == 10:
+                        flower_data_obj.level = 20
+                        flower_data_obj.save()
+                        print(f"Updated level for user: {request.user.username} to 2")
+
+                    # Optionally, update other fields or just save the new flower data
+                    flower_data_obj.data = flower_data  # Update with new flower data
+                    flower_data_obj.score = score  # Update score
+                    flower_data_obj.save()  # Save the updated object
+                    print(f"Data updated for user: {request.user.username}")
+                else:
+                    # Create a new FlowerData object if none exists
+                    flower_data_obj = FlowerData.objects.create(user=request.user, data=flower_data, score=score)
+                    print(f"New data created for user: {request.user.username}")
+
             except Exception as e:
                 print(f"Error saving data: {e}")
                 return JsonResponse({'status': 'error', 'message': 'Failed to save data'})
         else:
-            print("User not authenticated")
-            return JsonResponse({'status': 'error', 'message': 'User not authenticated'})
+            print("User  not authenticated")
+            return JsonResponse({'status': 'error', 'message': 'User  not authenticated'})
 
         print(f"Flower Data for {request.user.username} (Count: {flower_count}):")
         for flower in flower_data:

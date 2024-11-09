@@ -1,33 +1,5 @@
 {% load static %}
 
-{% comment %} 
-
-example to print values recieved from views.py 
-
-<h2>Flower Information</h2>
-{% if flower_info %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Quality</th>
-                <th>Size</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for flower in flower_info %}
-                <tr>
-                    <td>{{ flower.ID }}</td>
-                    <td>{{ flower.Quality }}</td>
-                    <td>{{ flower.Size }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No flower data available.</p>
-{% endif %} {% endcomment %}
-
 <style>
     body {
         margin: 0;

@@ -6,6 +6,6 @@
 
 {% block body %}
     {% if request.user.is_authenticated %}
-        {% include 'level2.html'%}
+        {% include 'level2.html' with flower_info=flower_info %}
     {% endif %}
 {% endblock body %}

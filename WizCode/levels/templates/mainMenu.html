@@ -84,6 +84,8 @@
 
     let InteractorMesh_L1, InteractorBody_L1
     let InteractorMesh_L2, InteractorBody_L2
+    let InteractorMesh_L3, InteractorBody_L3
+    let InteractorMesh_L4, InteractorBody_L4
 
 
 
@@ -169,6 +171,8 @@
         const characterBox = new THREE.Box3().setFromObject(CharacterMesh);
         const interactorBox_L1 = new THREE.Box3().setFromObject(InteractorMesh_L1);
         const interactorBox_L2 = new THREE.Box3().setFromObject(InteractorMesh_L2);
+        const interactorBox_L3 = new THREE.Box3().setFromObject(InteractorMesh_L3);
+
 
         if (characterBox.intersectsBox(interactorBox_L1)) {
             InteractorMesh_L1.material.color.set(0x790deb);
@@ -199,9 +203,22 @@
             InteractorMesh_L2.material.emissive.set(0x790deb00);
             InteractorMesh_L2.material.emissiveIntensity = 0;
         }
+
+        if (characterBox.intersectsBox(interactorBox_L3)) {
+            InteractorMesh_L3.material.color.set(0x790deb);
+            InteractorMesh_L3.material.emissive.set(0x790deb);
+            InteractorMesh_L3.material.emissiveIntensity = 5;
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    window.location.href = "/level3";
+                }
+            });
+        } else {
+            InteractorMesh_L3.material.color.set(0x008000);
+            InteractorMesh_L3.material.emissive.set(0x790deb00);
+            InteractorMesh_L3.material.emissiveIntensity = 0;
+        }
     }
-
-
 
     // ---Movement--------------------------------------------------------------
 
@@ -276,7 +293,8 @@
         isOrbiting = false;
     });
 
-    function text(x, y, z, string, size) {
+    function text(x, y, z, degreeY, string, size, col) {
+        const rotationY = degreeY * Math.PI / 180;
         const fontLoader = new FontLoader();
         fontLoader.load("{%static 'Magic_School.json'%}", function (font) {
             const textGeometry = new TextGeometry(string, {
@@ -286,14 +304,15 @@
                 curveSegments: 12,
             });
             const textMaterial = new THREE.MeshStandardMaterial({
-                color: 0xFFD700,
+                color: col,
                 transparent: true,
                 opacity: 1,
-                emissive: 0xFFD700,
+                emissive: col,
                 emissiveIntensity: 50
             });
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
             textMesh.position.set(x, y, z);
+            textMesh.rotation.y = rotationY;
             scene.add(textMesh);
         }, undefined, function (error) {
             console.error('An error occurred while loading the font:', error);
@@ -387,9 +406,9 @@
     function Level1(x, y, z) {
         loader.load("{%static 'models/garden.glb'%}", function (gltf) {
             const gardenModel = gltf.scene;
-            gardenModel.scale.set(1, 1, 1); // Set the scale of the model
-            gardenModel.position.set(x, y, z); // Set the position of the model
-            scene.add(gardenModel); // Add the model to the scene
+            gardenModel.scale.set(1, 1, 1);
+            gardenModel.position.set(x, y, z);
+            scene.add(gardenModel);
         }, undefined, function (error) {
             console.error('An error occurred while loading the model:', error);
         });
@@ -411,19 +430,19 @@
         addObstacle(11 + x, 0 + y, -14 + z, 0, 5, 5);
 
         // interactor
-        const InteractorShape_L1 = new THREE.CylinderGeometry(15, 15, 0.2, 6); // Interactor_L1al shape
+        const InteractorShape_L1 = new THREE.CylinderGeometry(15, 15, 0.2, 6);
         const Interactor_L1Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
         InteractorMesh_L1 = new THREE.Mesh(InteractorShape_L1, Interactor_L1Material);
         InteractorMesh_L1.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
-        InteractorMesh_L1.position.set(x + 1.5, y - 0.15, z); // Position the InteractorMesh_L1s as needed
+        InteractorMesh_L1.position.set(x + 1.5, y - 0.15, z);
         const Hexsize = 1.65;
 
         InteractorMesh_L1.scale.set(Hexsize, Hexsize, Hexsize);
         scene.add(InteractorMesh_L1);
 
         // title
-        text(-12, 10, -16, "Chapter 1 - Data Collection", 2);
-        text(7, 4, -42, "5", 1);
+        text(x - 10, y + 10, z + 10, 0, "Chapter 1 - Data Collection", 2, 0xFFD700);
+        // text(7, 4, -42, "5", 1);
 
     }
 
@@ -466,22 +485,35 @@
         addObstacle(100 + x, 0 + y, 15 + z, 35, 20, 20);
         addObstacle(-2 + x, 0 + y, 55 + z, 45, 20, 20);
 
-
-
         // interactor
-        const InteractorShape_L2 = new THREE.CylinderGeometry(15, 15, 0.2, 6); // 
+        const InteractorShape_L2 = new THREE.CylinderGeometry(15, 15, 0.2, 12);
         const Interactor_L2Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
         InteractorMesh_L2 = new THREE.Mesh(InteractorShape_L2, Interactor_L2Material);
         InteractorMesh_L2.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
-        // InteractorMesh_L2.rotation.z = Math.PI / 2;
-        InteractorMesh_L2.position.set(x - 100, y + 1.15, z + 20); // Position the InteractorMesh_L1s as needed
-        const Hexsize = 2.65;
+        InteractorMesh_L2.position.set(x - 105, y + 1.15, z + 20);
+        const Hexsize_L2 = 2;
+        InteractorMesh_L2.scale.set(Hexsize_L2, Hexsize_L2, Hexsize_L2);
 
-        InteractorMesh_L2.scale.set(Hexsize, Hexsize, Hexsize);
+        const InteractorShape_L3 = new THREE.CylinderGeometry(15, 15, 0.2, 12);
+        const Interactor_L3Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
+        InteractorMesh_L3 = new THREE.Mesh(InteractorShape_L3, Interactor_L3Material);
+        InteractorMesh_L3.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
+        InteractorMesh_L3.position.set(x-40, y + 1.15, z + 40);
+        const Hexsize_L3 = 2;
+        InteractorMesh_L3.scale.set(Hexsize_L3, Hexsize_L3, Hexsize_L3);
+
+
+
+        // {% if user_level >= 20 %}
         scene.add(InteractorMesh_L2);
+        text(x - 120, y + 10, z + 30, -20, "Chapter 2 - Data Preprocessing", 2, 0xFFFF00);
+        // {% endif %}
 
-        // title
-        // text(-12, 10, -16, "Chapter 1 - Data Collection", 2);
+        // {% if user_level >= 30 %}
+        scene.add(InteractorMesh_L3);
+        text(x-55, y + 10, z + 52, -10, "Chapter 3 - Linear Regression", 2, 0xFFFF00);
+        // {% endif %}
+
 
     }
 

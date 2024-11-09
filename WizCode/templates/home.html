@@ -6,7 +6,7 @@
 
 {% block body %}
     {% if request.user.is_authenticated %}
-    {% include 'mainMenu.html' %}
+    {% include 'mainMenu.html' with user_level=user_level %}
     {% else %}
     {% include 'landing.html' %}
     {% endif %}
