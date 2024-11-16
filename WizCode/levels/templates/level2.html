@@ -1,4 +1,4 @@
-    {% load static %}
+{% load static %}
 
 <style>
     body {
@@ -35,256 +35,254 @@
     }
 </script>
 <script type="module">
-import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
+    import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
+    import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
 
-let scene, camera, renderer, flowers = [], clickedFlowers = [], font;
-let accuracyText;
-let totalFlowers = 50;  // Total flowers in the game
-let goodFlowers = 25;   // Number of red (good) flowers
+    let scene, camera, renderer, flowers = [], clickedFlowers = [], font;
+    let accuracyText;
+    let totalFlowers = 50;  // Total flowers in the game
+    let goodFlowers = 25;   // Number of red (good) flowers
 
-const flowerData = [
-  { id: 1, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 2, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 3, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 4, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 5, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 6, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 7, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 8, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 9, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 10, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 11, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 12, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 13, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 14, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 15, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 16, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 17, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 18, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 19, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 20, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 21, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 22, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 23, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 24, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 25, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 26, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 27, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 28, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 29, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 30, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 31, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 32, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 33, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 34, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 35, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 36, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 37, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 38, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 39, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 40, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 41, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 42, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 43, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 44, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 45, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 46, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 47, modelPath: "{% static 'models/flower_red.glb' %}" },
-  { id: 48, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 49, modelPath: "{% static 'models/flower_green.glb' %}" },
-  { id: 50, modelPath: "{% static 'models/flower_green.glb' %}" }
-];
+    const flowerData = [
+        { id: 1, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 2, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 3, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 4, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 5, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 6, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 7, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 8, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 9, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 10, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 11, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 12, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 13, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 14, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 15, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 16, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 17, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 18, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 19, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 20, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 21, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 22, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 23, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 24, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 25, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 26, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 27, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 28, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 29, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 30, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 31, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 32, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 33, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 34, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 35, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 36, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 37, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 38, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 39, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 40, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 41, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 42, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 43, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 44, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 45, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 46, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 47, modelPath: "{% static 'models/flower_red.glb' %}" },
+        { id: 48, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 49, modelPath: "{% static 'models/flower_green.glb' %}" },
+        { id: 50, modelPath: "{% static 'models/flower_green.glb' %}" }
+    ];
 
-function init() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 10, 7.5);
-    scene.add(light);
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 7.5);
+        scene.add(light);
 
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
 
-    const loader = new FontLoader();
-    loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(loadedFont) {
-        font = loadedFont;
-        createTextObjects();
-        createFlowers();
-        animate();
-    });
-}
-
-function createTextObjects() {
-    updateAccuracyText();
-}
-
-function updateAccuracyText() {
-    if (accuracyText) {
-        scene.remove(accuracyText);
-    }
-    const accuracy = totalFlowers > 0 ? ((goodFlowers / totalFlowers) * 100).toFixed(1) : 0;
-    accuracyText = createText(`Accuracy: ${accuracy}%`, 0.25, { x: -1, y: 3 });
-}
-
-function createText(message, size, position) {
-    const textGeometry = new TextGeometry(message, {
-        font: font,
-        size: size,
-        height: 0.05,
-    });
-    const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    textMesh.position.set(position.x, position.y, 0);
-    scene.add(textMesh);
-    return textMesh;
-}
-
-function createFlowers() {
-    const loader = new GLTFLoader();
-    
-    function spawnFlower(index) {
-        if (index >= flowerData.length) return;
-
-        loader.load(flowerData[index].modelPath, (gltf) => {
-            const flower = gltf.scene;
-            flower.scale.set(0.3, 0.3, 0.3);
-            flower.userData = { 
-                id: flowerData[index].id,
-                isGoodFlower: flowerData[index].modelPath.includes('flower_red')
-            };
-
-            const boundingBox = new THREE.Box3().setFromObject(flower);
-            const boxSize = boundingBox.getSize(new THREE.Vector3());
-            const clickableGeometry = new THREE.BoxGeometry(
-                Math.max(1, boxSize.x), 
-                Math.max(1, boxSize.y), 
-                Math.max(1, boxSize.z)
-            );
-            const clickableMaterial = new THREE.MeshBasicMaterial({
-                transparent: true,
-                opacity: 0
-            });
-            const clickableMesh = new THREE.Mesh(clickableGeometry, clickableMaterial);
-            clickableMesh.userData = { isClickable: true, parentId: flowerData[index].id };
-            
-            const group = new THREE.Group();
-            group.add(flower);
-            group.add(clickableMesh);
-            group.userData = { 
-                id: flowerData[index].id, 
-                isFlower: true,
-                isGoodFlower: flowerData[index].modelPath.includes('flower_red')
-            };
-
-            resetFlowerPosition(group);
-            scene.add(group);
-            flowers.push(group);
-
-            setTimeout(() => spawnFlower(index + 1), 1000);
+        const loader = new FontLoader();
+        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
+            font = loadedFont;
+            createTextObjects();
+            createFlowers();
+            animate();
         });
     }
 
-    spawnFlower(0);
-}
-
-function resetFlowerPosition(flower) {
-    flower.position.set(-10, Math.random() * 4 - 2, 0);
-    flower.userData.xVelocity = 0.01 + Math.random() * 0.001;
-    flower.userData.yVelocity = (Math.sin(Math.random() * Math.PI) * 0.00);
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    const time = Date.now() * 0.001;
-
-    flowers.forEach(flower => {
-        if (flower.visible) {
-            flower.position.x += flower.userData.xVelocity;
-            const waveHeight = Math.sin(time + flower.userData.id) * 0.005;
-            flower.position.y += flower.userData.yVelocity + waveHeight;
-        }
-    });
-
-    renderer.render(scene, camera);
-}
-
-function handleFlowerClick(flower) {
-    if (!clickedFlowers.includes(flower.userData.id)) {
-        clickedFlowers.push(flower.userData.id);
-        
-        if (flower.userData.isGoodFlower) {
-            goodFlowers--;
-        }
-        totalFlowers--;
-        
+    function createTextObjects() {
         updateAccuracyText();
-        flower.visible = false;
-        
-        const index = flowers.indexOf(flower);
-        if (index > -1) {
-            flowers.splice(index, 1);
+    }
+
+    function updateAccuracyText() {
+        if (accuracyText) {
+            scene.remove(accuracyText);
+        }
+        const accuracy = totalFlowers > 0 ? ((goodFlowers / totalFlowers) * 100).toFixed(1) : 0;
+        accuracyText = createText(`Accuracy: ${accuracy}%`, 0.25, { x: -1, y: 3 });
+    }
+
+    function createText(message, size, position) {
+        const textGeometry = new TextGeometry(message, {
+            font: font,
+            size: size,
+            height: 0.05,
+        });
+        const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        textMesh.position.set(position.x, position.y, 0);
+        scene.add(textMesh);
+        return textMesh;
+    }
+
+    function createFlowers() {
+        const loader = new GLTFLoader();
+
+        function spawnFlower(index) {
+            if (index >= flowerData.length) return;
+
+            loader.load(flowerData[index].modelPath, (gltf) => {
+                const flower = gltf.scene;
+                flower.scale.set(0.3, 0.3, 0.3);
+                flower.userData = {
+                    id: flowerData[index].id,
+                    isGoodFlower: flowerData[index].modelPath.includes('flower_red')
+                };
+
+                const boundingBox = new THREE.Box3().setFromObject(flower);
+                const boxSize = boundingBox.getSize(new THREE.Vector3());
+                const clickableGeometry = new THREE.BoxGeometry(
+                    Math.max(1, boxSize.x),
+                    Math.max(1, boxSize.y),
+                    Math.max(1, boxSize.z)
+                );
+                const clickableMaterial = new THREE.MeshBasicMaterial({
+                    transparent: true,
+                    opacity: 0
+                });
+                const clickableMesh = new THREE.Mesh(clickableGeometry, clickableMaterial);
+                clickableMesh.userData = { isClickable: true, parentId: flowerData[index].id };
+
+                const group = new THREE.Group();
+                group.add(flower);
+                group.add(clickableMesh);
+                group.userData = {
+                    id: flowerData[index].id,
+                    isFlower: true,
+                    isGoodFlower: flowerData[index].modelPath.includes('flower_red')
+                };
+
+                resetFlowerPosition(group);
+                scene.add(group);
+                flowers.push(group);
+
+                setTimeout(() => spawnFlower(index + 1), 1000);
+            });
         }
 
-        // Check if all flowers are clicked
-        if (totalFlowers === 0) {
-            endGame();
+        spawnFlower(0);
+    }
+
+    function resetFlowerPosition(flower) {
+        flower.position.set(-10, Math.random() * 4 - 2, 0);
+        flower.userData.xVelocity = 0.01 + Math.random() * 0.001;
+        flower.userData.yVelocity = (Math.sin(Math.random() * Math.PI) * 0.00);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const time = Date.now() * 0.001;
+
+        flowers.forEach(flower => {
+            if (flower.visible) {
+                flower.position.x += flower.userData.xVelocity;
+                const waveHeight = Math.sin(time + flower.userData.id) * 0.005;
+                flower.position.y += flower.userData.yVelocity + waveHeight;
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    function handleFlowerClick(flower) {
+        if (!clickedFlowers.includes(flower.userData.id)) {
+            clickedFlowers.push(flower.userData.id);
+
+            if (flower.userData.isGoodFlower) {
+                goodFlowers--;
+            }
+            totalFlowers--;
+
+            updateAccuracyText();
+            flower.visible = false;
+
+            const index = flowers.indexOf(flower);
+            if (index > -1) {
+                flowers.splice(index, 1);
+            }
+
+            // Check if all flowers are clicked
+            if (totalFlowers === 0) {
+                endGame();
+            }
         }
     }
-}
 
-function endGame() {
-    const accuracy = ((clickedFlowers.length - (25 - goodFlowers)) / clickedFlowers.length * 100).toFixed(1);
-    const endText = createText(`Game Over!\nFinal Accuracy: ${accuracy}%`, 0.5, { x: -1.5, y: 0 });
-    flowers.forEach(flower => {
-        flower.userData.xVelocity = 0;
-        flower.userData.yVelocity = 0;
+    function endGame() {
+        const accuracy = ((clickedFlowers.length - (25 - goodFlowers)) / clickedFlowers.length * 100).toFixed(1);
+        const endText = createText(`Game Over!\nFinal Accuracy: ${accuracy}%`, 0.5, { x: -1.5, y: 0 });
+        flowers.forEach(flower => {
+            flower.userData.xVelocity = 0;
+            flower.userData.yVelocity = 0;
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     });
-}
 
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+    function onMouseClick(event) {
+        event.preventDefault();
 
-function onMouseClick(event) {
-    event.preventDefault();
-    
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    raycaster.setFromCamera(mouse, camera);
+        raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(scene.children, true);
-    
-    for (let intersect of intersects) {
-        let current = intersect.object;
-        while (current && !current.userData.isFlower) {
-            current = current.parent;
-        }
-        
-        if (current && current.userData.isFlower && current.visible) {
-            handleFlowerClick(current);
-            break;
+        const intersects = raycaster.intersectObjects(scene.children, true);
+
+        for (let intersect of intersects) {
+            let current = intersect.object;
+            while (current && !current.userData.isFlower) {
+                current = current.parent;
+            }
+
+            if (current && current.userData.isFlower && current.visible) {
+                handleFlowerClick(current);
+                break;
+            }
         }
     }
-}
 
-window.addEventListener('click', onMouseClick);
+    window.addEventListener('click', onMouseClick);
 
-init();
-  </script>
-  
-  
+    init();
+</script>

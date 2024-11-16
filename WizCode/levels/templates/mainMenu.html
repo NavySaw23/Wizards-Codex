@@ -47,7 +47,7 @@
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
 
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 5, 1000);
     camera.position.set(0, 500, 0);
     camera.lookAt(0, 0, 0);
 
@@ -105,15 +105,20 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(10, 20, 10);
+        directionalLight.position.set(0, 50, 0);
+        directionalLight.castShadow = true;
         scene.add(directionalLight);
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         addGround();
         addCharacter();
 
+        Environment(120, 0, -30, 146, 0);
+
         Level1(-2, 0, -30)
         Level2(150, -1, -80)
-
 
         handleCharacterMovement();
     }
@@ -140,6 +145,14 @@
     function animate() {
         if (modelLoaded) {
             CharacterModel.position.copy(CharacterBody.position);
+        }
+
+        if (!isOrbiting && !debugmode) {
+            camera.position.x = Math.max(CharacterMesh.position.x - 30, Math.min(CharacterMesh.position.x + 30, CharacterMesh.position.x + (CharacterMesh.position.x - 95) * 0.2))
+            camera.position.y = Math.max(5, Math.min(CharacterMesh.position.y + 5 - (CharacterMesh.position.z / -20) * 20, 25)); // 
+            camera.position.z = CharacterMesh.position.z + 20;
+            camera.lookAt(CharacterMesh.position);
+
         }
 
         renderer.render(scene, camera);
@@ -237,12 +250,12 @@
                     break;
                 case 'ArrowLeft':
                     CharacterVelocity.x = -CharacterSpeed;
-                    CharacterModel.rotation.y = Math.PI / 2; // Face left
+                    CharacterModel.rotation.y = -Math.PI / 2; // Face left
 
                     break;
                 case 'ArrowRight':
                     CharacterVelocity.x = CharacterSpeed;
-                    CharacterModel.rotation.y = -Math.PI / 2; // Face right
+                    CharacterModel.rotation.y = Math.PI / 2; // Face right
 
                     break;
             }
@@ -319,7 +332,6 @@
         });
     }
 
-
     // ---Object-Functions------------------------------------------------------
 
     function addGround() {
@@ -336,6 +348,7 @@
             shape: groundShape,
             type: CANNON.Body.STATIC
         });
+        groundMesh.receiveShadow = true
         world.addBody(groundBody);
     }
 
@@ -343,6 +356,8 @@
         const CharacterGeometry = new THREE.BoxGeometry(2, 2, 2);
         const CharacterMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: ColliderOpacity });
         CharacterMesh = new THREE.Mesh(CharacterGeometry, CharacterMaterial);
+        CharacterMesh.castShadow = true;
+        CharacterMesh.receiveShadow = true;
         if (debugmode) {
             scene.add(CharacterMesh);
         }
@@ -399,9 +414,81 @@
         world.addBody(obstacleBody);
     }
 
+    function pickRandomString(s1, s2) {
+        const strings = [s1, s2];
+        return strings[Math.floor(Math.random() * strings.length)];
+    }
+
+    function addTree(x, y, z, rotationYDeg, length, breadth) {
+
+        const s1 = "{%static 'models/tree1.glb'%}"
+        const s2 = "{%static 'models/tree2.glb'%}"
+        const tree = pickRandomString(s1, s2);
+
+        loader.load(tree, function (gltf) {
+            const treeModel = gltf.scene;
+            treeModel.scale.set(Math.random() * 0.4 + 0.8, Math.random() * 0.4 + 0.8, Math.max(Math.random() * 0.4 + 0.8, Math.random() * 0.4 + 0.8));
+            treeModel.position.set(x, y, z);
+            treeModel.rotation.y = Math.random() * Math.PI * 2;
+            treeModel.castShadow = true;
+            treeModel.receiveShadow = true;
+            scene.add(treeModel);
+        }, undefined, function (error) {
+            console.error('An error occurred while loading the model:', error);
+        });
+        addObstacle(x, y, z, rotationYDeg, length, breadth)
+    }
+
+    function addHedge(x, y, z, rotationYDeg, length, breadth) {
+        const hedge = "{%static 'models/hedge.glb'%}"
+
+        loader.load(hedge, function (gltf) {
+            const hedgeModel = gltf.scene;
+            hedgeModel.scale.set(2,2,2);
+            hedgeModel.position.set(x, y+2, z);
+            hedgeModel.rotation.y = -rotationYDeg* Math.PI / 180;;
+            hedgeModel.castShadow = true;
+            hedgeModel.receiveShadow = true;
+            scene.add(hedgeModel);
+        }, undefined, function (error) {
+            console.error('An error occurred while loading the model:', error);
+        });
+        addObstacle(x, y, z, -rotationYDeg, length-5, breadth+5)
+    }
 
 
     // ---Level-Setups------------------------------------------------------
+
+    function Environment(x, y, z, r, step) {
+
+        loader.load("{%static 'models/mount.glb'%}", function (gltf) {
+            const mountModel = gltf.scene;
+            mountModel.scale.set(20, 20, 20);
+            mountModel.position.set(x + 10, y - 1, z - 80);
+            scene.add(mountModel);
+        }, undefined, function (error) {
+            console.error('An error occurred while loading the model:', error);
+        });
+
+        var maxOffset = 500; // Maximum offset for x and z
+        var angleStep = 360 * 2 / r;
+
+        // Add trees in the circle
+        for (var i = step; i < 360; i += angleStep) {
+            var angle = i
+            var angledeg = angle * Math.PI / 180;
+            addHedge(x + r * Math.cos(angledeg), y, z + r * Math.sin(angledeg), angle, 10, 10);
+        }
+
+        // Add trees outside the circle
+        for (var offsetX = -maxOffset; offsetX <= maxOffset; offsetX += 50) {
+            for (var offsetZ = -maxOffset; offsetZ <= maxOffset; offsetZ += 50) {
+                if (Math.sqrt(offsetX ** 2 + offsetZ ** 2) > r) {
+                    addTree(x + offsetX, y, z + offsetZ, 0, 10, 10);
+                }
+            }
+        }
+    }
 
     function Level1(x, y, z) {
         loader.load("{%static 'models/garden.glb'%}", function (gltf) {
@@ -498,7 +585,7 @@
         const Interactor_L3Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
         InteractorMesh_L3 = new THREE.Mesh(InteractorShape_L3, Interactor_L3Material);
         InteractorMesh_L3.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
-        InteractorMesh_L3.position.set(x-40, y + 1.15, z + 40);
+        InteractorMesh_L3.position.set(x - 40, y + 1.15, z + 40);
         const Hexsize_L3 = 2;
         InteractorMesh_L3.scale.set(Hexsize_L3, Hexsize_L3, Hexsize_L3);
 
@@ -511,7 +598,7 @@
 
         // {% if user_level >= 30 %}
         scene.add(InteractorMesh_L3);
-        text(x-55, y + 10, z + 52, -10, "Chapter 3 - Linear Regression", 2, 0xFFFF00);
+        text(x - 55, y + 10, z + 52, -10, "Chapter 3 - Linear Regression", 2, 0xFFFF00);
         // {% endif %}
 
 
