@@ -136,7 +136,6 @@
             camera.position.y += 10;
         }
 
-
         interactions();
 
         requestAnimationFrame(update);
@@ -235,27 +234,32 @@
 
     // ---Movement--------------------------------------------------------------
 
+
     function handleCharacterMovement() {
         document.addEventListener('keydown', (event) => {
+            let angleToCamera = Math.atan2(CharacterMesh.position.x - camera.position.x, CharacterMesh.position.z - camera.position.z) * 180 / Math.PI
             switch (event.key) {
                 case 'ArrowUp':
                     CharacterVelocity.z = -CharacterSpeed;
-                    CharacterModel.rotation.y = Math.PI; // Face forward
+                    CharacterVelocity.x = -CharacterSpeed * Math.sin(-angleToCamera * Math.PI / 180);
+                    CharacterModel.rotation.y = (Math.PI / 180) * angleToCamera; // Face forward
 
                     break;
                 case 'ArrowDown':
                     CharacterVelocity.z = CharacterSpeed;
-                    CharacterModel.rotation.y = 0; // Face backward
+                    CharacterVelocity.x = CharacterSpeed * Math.sin(-angleToCamera * Math.PI / 180);
+                    CharacterModel.rotation.y = (Math.PI) +(Math.PI / 180) * angleToCamera ; // Face backward
 
                     break;
                 case 'ArrowLeft':
                     CharacterVelocity.x = -CharacterSpeed;
-                    CharacterModel.rotation.y = -Math.PI / 2; // Face left
+                    CharacterModel.rotation.y = (-Math.PI / 2) + (Math.PI / 180) * angleToCamera; // Face left
 
                     break;
                 case 'ArrowRight':
                     CharacterVelocity.x = CharacterSpeed;
-                    CharacterModel.rotation.y = Math.PI / 2; // Face right
+                    CharacterModel.rotation.y = (Math.PI / 2) + (Math.PI / 180) * angleToCamera; // Face left
+
 
                     break;
             }
@@ -266,6 +270,7 @@
                 case 'ArrowUp':
                 case 'ArrowDown':
                     CharacterVelocity.z = 0;
+                    CharacterVelocity.x = 0;
                     break;
                 case 'ArrowLeft':
                 case 'ArrowRight':
@@ -444,16 +449,16 @@
 
         loader.load(hedge, function (gltf) {
             const hedgeModel = gltf.scene;
-            hedgeModel.scale.set(2,2,2);
-            hedgeModel.position.set(x, y+2, z);
-            hedgeModel.rotation.y = -rotationYDeg* Math.PI / 180;;
+            hedgeModel.scale.set(2, 2, 2);
+            hedgeModel.position.set(x, y + 2, z);
+            hedgeModel.rotation.y = -rotationYDeg * Math.PI / 180;;
             hedgeModel.castShadow = true;
             hedgeModel.receiveShadow = true;
             scene.add(hedgeModel);
         }, undefined, function (error) {
             console.error('An error occurred while loading the model:', error);
         });
-        addObstacle(x, y, z, -rotationYDeg, length-5, breadth+5)
+        addObstacle(x, y, z, -rotationYDeg, length - 5, breadth + 5)
     }
 
 

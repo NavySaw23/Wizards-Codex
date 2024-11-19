@@ -115,7 +115,7 @@
         gameOverElement.style.left = '50%';
         gameOverElement.style.transform = 'translate(-50%, -50%)';
         gameOverElement.style.color = 'red';
-        gameOverElement.style.fontSize = '68px';
+        gameOverElement.style.fontSize = '2rem';
         gameOverElement.style.textAlign = 'center';
         gameOverElement.style.width = '100%';
         gameOverElement.style.display = "none";
@@ -268,7 +268,12 @@
         }, 3000);
     }
 
-    
+    document.addEventListener('keydown', function (event) {
+        if (gameEnded && event.key === 'Enter') {
+            window.location.href = '/';
+        }
+    });
+
 
     function endGame() {
         // Prevent multiple calls
@@ -277,10 +282,12 @@
 
         const totalFlowers = flowerCount + max_streak;
         gameOverElement.innerHTML = `
-            Game Over!<br>
+            Game Over!<br><br>
             Total Flowers Collected: ${flowerCount}<br>
             Max Streak: ${max_streak}<br>
             Total Flowers: ${totalFlowers}
+            <br>
+            press ENTER to return to homescreen
         `;
         gameOverElement.style.display = 'block';
 
@@ -295,13 +302,13 @@
                 flowerCount: totalFlowers
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Server response:', data);
-        })
-        .catch(error => {
-            console.error('Error sending data:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+            })
+            .catch(error => {
+                console.error('Error sending data:', error);
+            });
 
         // Print final game data to console
         console.log('Final Game Stats:', {
@@ -327,9 +334,9 @@
         return cookieValue;
     }
 
-        window.addEventListener('resize', function () {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    window.addEventListener('resize', function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
