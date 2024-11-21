@@ -34,6 +34,7 @@
     import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
     import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
 
+    
     let scene, camera, renderer, flowers = [], clickedFlowers = [], font;
     let accuracyText;
 
@@ -246,6 +247,8 @@
             const index = flowers.indexOf(flower);
             if (index > -1) {
                 flowers.splice(index, 1);
+                flowerData.splice(index, 1);
+
             }
 
             // Check if all flowers are clicked
@@ -278,6 +281,7 @@
             flower.userData.yVelocity = 0;
         });
 
+        console.log(flowerData)
         // Remove click event listener to prevent further interactions
         window.removeEventListener('click', onMouseClick);
     }
