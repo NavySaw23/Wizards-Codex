@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Novel Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 90vh;
+            background: url("{%static 'img/garden.jpg'%}") center/cover no-repeat;
+        }
+
+        .character-area {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 100px;
+            margin-top: 260px;
+        }
+
+        .character {
+            position: relative;
+        }
+
+        .character img {
+            width: 250px;
+            height: auto;
+            transition: transform 0.3s ease;
+            opacity: 0.8;
+            transform: scale(1.2);
+        }
+
+        .character.active img {
+            transform: scale(1.5);
+            opacity: 1;
+        }
+
+        .dialog-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .blue {
+            background-color: #3100a5;
+        }
+
+        .red {
+            background-color: #dd4588;
+        }
+
+        .dialog-box::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 10px;
+            background-color: white;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -10px;
+            z-index: 1;
+        }
+
+        .name-box {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            color: #000;
+            position: absolute;
+            top: -50px;
+        }
+
+        .dialog-text {
+            font-size: 2rem;
+            color: white;
+        }
+
+        #control-text{
+            margin-top: 1rem;
+            color: #DDDDDD;
+        }
+
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div id="game-container">
+        <!-- Character Images -->
+        <div class="character-area">
+            <div id="main-character" class="character active">
+                <img src="{%static 'img/MMC.png'%}" alt="Main Character">
+            </div>
+            <div id="npc-character" class="character">
+                <img src="{%static 'img/FMC.png'%}" alt="NPC Character">
+            </div>
+        </div>
+
+        <!-- Dialog Box -->
+        <div class="dialog-box" id="dia">
+            <div id="name-box" class="name-box">Main Character</div>
+            <div id="dialog-text" class="dialog-text">This is a placeholder for dialog text.</div>
+           
+            <div id="control-text">Press ENTER to proceed, ESC to skip</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('wheel', function (event) {
+            event.preventDefault();
+        });
+
+        const dialogData = [
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Wow, thats a mystical looking garden",
+                    "But why are we looking for flowers?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Asphodel Flowers are used in making potions",
+                    "If you want to create a good potion, you need good flowers",
+                    "This is call the Data Collection Phase",
+                    "You came to this school to become a great Wizard AI Model right?",
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Yes, that is my dream!"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "So in order to become a great AI Model, you need training",
+                    "And training is easier when you have more data.",
+                    "So, let's go collect some data in the form of flowers",
+                    "good luck!",
+                ]
+            },
+        ];
+
+        let currentDialogIndex = 0;
+        let currentLineIndex = 0;
+        let isTypingComplete = false;
+
+        // Initialize SpeechSynthesis
+        const synth = window.speechSynthesis;
+        let voices = [];
+
+        // Function to populate voices for speech synthesis
+        function populateVoices() {
+            voices = synth.getVoices();
+            console.log("Voices available:", voices);  // Debug: See all available voices
+        }
+
+        // Set a default voice when voices are changed
+        synth.addEventListener("voiceschanged", populateVoices);
+        populateVoices();
+
+        // Function to display dialog with letter-by-letter effect
+        function typeText(textElement, text, onComplete) {
+            textElement.textContent = '';
+            isTypingComplete = false;
+            let index = 0;
+
+            function addNextLetter() {
+                if (index < text.length) {
+                    textElement.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(addNextLetter, 40);
+                } else {
+                    isTypingComplete = true;
+                    if (onComplete) onComplete();
+                }
+            }
+            addNextLetter();
+        }
+
+        // Function to render the dialog and speak it
+        function renderDialog() {
+            const nameBox = document.getElementById('name-box');
+            const dialogText = document.getElementById('dialog-text');
+            const mainCharacter = document.getElementById('main-character');
+            const npcCharacter = document.getElementById('npc-character');
+            const diabox = document.getElementById('dia');
+
+            const dialog = dialogData[currentDialogIndex];
+            const dialogLine = dialog.dialog[currentLineIndex];
+
+            nameBox.textContent = dialog.character;
+
+            if (dialog.character === 'You') {
+                mainCharacter.classList.add('active');
+                npcCharacter.classList.remove('active');
+                diabox.classList.add('blue');
+                diabox.classList.remove('red');
+            } else {
+                mainCharacter.classList.remove('active');
+                npcCharacter.classList.add('active');
+                diabox.classList.add('red');
+                diabox.classList.remove('blue');
+            }
+
+            typeText(dialogText, dialogLine, () => {
+                // Wait for the voices to be loaded
+
+                if (voices.length === 0) {
+                    console.log("Waiting for voices to load..."); // Debugging log
+                    setTimeout(() => {
+                        renderDialog(); // Retry if voices aren't loaded
+                    }, 100);
+                    return;
+                }
+
+                const speech = new SpeechSynthesisUtterance(dialogLine);
+                speech.voice = voices.find(voice => voice.name === 'Google UK English Male');  // Set default voice
+                if (!speech.voice) {
+                    speech.voice = voices[0];  // Fallback to the first available voice
+                }
+
+                console.log("Speaking:", dialogLine);  // Debugging log
+                // Speak the dialog after a delay to ensure text is fully typed
+                setTimeout(() => {
+                    synth.speak(speech);
+                }, 300); // Delay after typing is complete
+            });
+        }
+
+        // Move to the next dialog
+        function nextDialog() {
+            if (!isTypingComplete) return;
+
+            const currentDialog = dialogData[currentDialogIndex];
+            if (currentLineIndex < currentDialog.dialog.length - 1) {
+                currentLineIndex++;
+            } else {
+                if (currentDialogIndex === dialogData.length - 1) {
+                    location.reload();
+                    return;
+                } else {
+                    currentDialogIndex++;
+                    currentLineIndex = 0;
+                }
+            }
+            renderDialog();
+        }
+
+        // Initial render
+        renderDialog();
+
+        // Event listener to go to the next dialog on click
+        document.body.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                nextDialog();
+            } else if (event.key === 'Escape') {
+                location.reload();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -184,6 +184,7 @@
         const interactorBox_L1 = new THREE.Box3().setFromObject(InteractorMesh_L1);
         const interactorBox_L2 = new THREE.Box3().setFromObject(InteractorMesh_L2);
         const interactorBox_L3 = new THREE.Box3().setFromObject(InteractorMesh_L3);
+        const interactorBox_L4 = new THREE.Box3().setFromObject(InteractorMesh_L4);
 
 
         if (characterBox.intersectsBox(interactorBox_L1)) {
@@ -230,6 +231,23 @@
             InteractorMesh_L3.material.emissive.set(0x790deb00);
             InteractorMesh_L3.material.emissiveIntensity = 0;
         }
+
+        if (characterBox.intersectsBox(interactorBox_L4)) {
+            InteractorMesh_L4.material.color.set(0x790deb);
+            InteractorMesh_L4.material.emissive.set(0x790deb);
+            InteractorMesh_L4.material.emissiveIntensity = 5;
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    window.location.href = "/level4";
+                }
+            });
+        } else {
+            InteractorMesh_L4.material.color.set(0x008000);
+            InteractorMesh_L4.material.emissive.set(0x790deb00);
+            InteractorMesh_L4.material.emissiveIntensity = 0;
+        }
+
+
     }
 
     // ---Movement--------------------------------------------------------------
@@ -248,7 +266,7 @@
                 case 'ArrowDown':
                     CharacterVelocity.z = CharacterSpeed;
                     CharacterVelocity.x = CharacterSpeed * Math.sin(-angleToCamera * Math.PI / 180);
-                    CharacterModel.rotation.y = (Math.PI) +(Math.PI / 180) * angleToCamera ; // Face backward
+                    CharacterModel.rotation.y = (Math.PI) + (Math.PI / 180) * angleToCamera; // Face backward
 
                     break;
                 case 'ArrowLeft':
@@ -594,6 +612,13 @@
         const Hexsize_L3 = 2;
         InteractorMesh_L3.scale.set(Hexsize_L3, Hexsize_L3, Hexsize_L3);
 
+        const InteractorShape_L4 = new THREE.CylinderGeometry(15, 15, 0.2, 12);
+        const Interactor_L4Material = new THREE.MeshStandardMaterial({ color: 0x008000, transparent: true, opacity: 0.5 });
+        InteractorMesh_L4 = new THREE.Mesh(InteractorShape_L4, Interactor_L4Material);
+        InteractorMesh_L4.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
+        InteractorMesh_L4.position.set(x + 40, y + 1.15, z + 60);
+        const Hexsize_L4 = 2;
+        InteractorMesh_L4.scale.set(Hexsize_L4, Hexsize_L4, Hexsize_L4);
 
 
         // {% if user_level >= 20 %}
@@ -604,6 +629,11 @@
         // {% if user_level >= 30 %}
         scene.add(InteractorMesh_L3);
         text(x - 55, y + 10, z + 52, -10, "Chapter 3 - Linear Regression", 2, 0xFFFF00);
+        // {% endif %}
+
+        // {% if user_level >= 40 %}
+        scene.add(InteractorMesh_L4);
+        text(x + 28, y + 10, z + 65, 0, "Chapter 4 - Logistics Regression", 2, 0xFFFF00);
         // {% endif %}
 
 
