@@ -1,4 +1,5 @@
 from login.models import User
+import logging
 from django.shortcuts import render, get_object_or_404,redirect
 from django.http import HttpResponseRedirect, JsonResponse
 from .forms import RegistrationForm
@@ -13,6 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 import random
+
+logger = logging.getLogger(__name__)
 
 def registrationView(request):
     if request.method == "POST":
@@ -68,6 +71,8 @@ def get_user_data(request):
 
 from .models import FlowerData
 
+
+@login_required
 @csrf_exempt
 def update_flower_count(request):
     print("Function called: update_flower_count")
@@ -146,3 +151,120 @@ def update_flower_count(request):
     else:
         print(f"Invalid request method: {request.method}")
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+@login_required
+@csrf_exempt
+def clean_flower_data(request):
+    try:
+        # Log the raw request body for debugging
+        logger.info(f"Raw request body: {request.body}")
+
+        # Parse the JSON body
+        try:
+            body_data = json.loads(request.body)
+            logger.info(f"Parsed body data type: {type(body_data)}")
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Could not parse JSON: {str(e)}'
+            }, status=400)
+
+        # Extract flower data
+        frontend_flower_data = body_data.get('flower_data', [])
+        # logger.info(f"Frontend flower data type: {type(frontend_flower_data)}")
+        # logger.info(f"Frontend flower data length: {len(frontend_flower_data)}")
+        
+        # Validate frontend flower data
+        if not isinstance(frontend_flower_data, list):
+            logger.error(f"Invalid frontend flower data type: {type(frontend_flower_data)}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Frontend flower data must be a list'
+            }, status=400)
+
+        # Get the latest FlowerData for the user
+        flower_data_obj = FlowerData.objects.filter(user=request.user).first()
+        
+        if not flower_data_obj or not flower_data_obj.data:
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'No data to clean',
+                'original_count': 0,
+                'cleaned_count': 0
+            })
+
+        # Ensure data is a list
+        if isinstance(flower_data_obj.data, str):
+            try:
+                flower_data_obj.data = json.loads(flower_data_obj.data)
+            except json.JSONDecodeError:
+                logger.error("Could not parse stored flower data")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Invalid stored data format'
+                }, status=400)
+
+        # Extract frontend flower IDs
+        frontend_flower_ids = [
+            int(flower.get('id')) 
+            for flower in frontend_flower_data 
+            if flower.get('id') is not None
+        ]
+        logger.info(f"Extracted frontend flower IDs: {frontend_flower_ids}")
+
+        # If no IDs found, return error
+        if not frontend_flower_ids:
+            logger.warning("No valid flower IDs found")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No valid flower IDs found'
+            }, status=400)
+
+        # Filter the data
+        cleaned_data = []
+        removed_data = []
+
+        for item in flower_data_obj.data:
+            item_id = item.get('id') or item.get('ID')
+            
+            if item_id is not None and int(item_id) in frontend_flower_ids:
+                cleaned_data.append(item)
+            else:
+                removed_data.append(item)
+
+        logger.info(f"Cleaned data length: {len(cleaned_data)}")
+        logger.info(f"Removed data length: {len(removed_data)}")
+
+        # Save the cleaned data
+        if cleaned_data:
+            flower_data_obj.data = cleaned_data
+            flower_data_obj.save()
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'Flower data cleaned successfully',
+                'original_count': len(flower_data_obj.data),
+                'cleaned_count': len(cleaned_data),
+                'removed_count': len(removed_data),
+                'frontend_flower_ids': frontend_flower_ids,
+                'details': {
+                    'first_item_type': type(cleaned_data[0]).__name__,
+                    'first_item_keys': list(cleaned_data[0].keys())
+                }
+            })
+        else:
+            logger.warning("No data remained after cleaning")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'All data was removed during cleaning',
+                'original_count': len(flower_data_obj.data),
+                'cleaned_count': 0
+            }, status=400)
+    
+    except Exception as e:
+        logger.error(f"Unexpected error cleaning flower data: {e}", exc_info=True)
+        return JsonResponse({
+            'status': 'error', 
+            'message': f'Unexpected error: {str(e)}'
+        }, status=500)

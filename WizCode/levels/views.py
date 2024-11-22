@@ -73,3 +73,44 @@ def lvl_view_2(request):
             'flower_info': [], 
             'flower_data_json': '[]'
         })
+    
+
+def lvl_view_4(request):
+    if not request.user.is_authenticated:
+        return render(request, 'level2.html', {'flower_info': [], 'flower_data_json': '[]'})
+    
+    try:
+        latest_flower_data = FlowerData.objects.filter(user=request.user).latest('created_at')
+        flower_info = latest_flower_data.data
+
+        processed_flower_info = []
+        flower_data_for_js = []
+        for flower in flower_info:
+            processed_flower = {
+                'ID': flower.get('ID'),
+                'Quality': flower.get('Quality'),
+                'Size': flower.get('Petal.Length', 'N/A') 
+            }
+            processed_flower_info.append(processed_flower)
+            
+            # Prepare data for JavaScript
+            flower_data_for_js.append({
+                'id': flower.get('ID'),
+                'quality': flower.get('Quality')
+            })
+        
+        import json
+        flower_data_json = json.dumps(flower_data_for_js)
+        
+        
+        
+        return render(request, 'level2_Page.html', {
+            'flower_info': processed_flower_info,
+            'flower_data_json': flower_data_json
+        })
+    
+    except FlowerData.DoesNotExist:
+        return render(request, 'level2_Page.html', {
+            'flower_info': [], 
+            'flower_data_json': '[]'
+        })
