@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flower and Cauldron Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f0f8ff;
+      height: 100vh;
+      justify-content: space-between; /* Ensures flowers are at the bottom */
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .game-container {
+      display: flex;
+      justify-content: center; /* Centers the cauldrons */
+      gap: 10px; /* Reduces the space between cauldrons */
+      margin-top: 20px;
+    }
+
+    .cauldron-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cauldron {
+      width: 200px;
+      height: 150px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end; /* Align items to the bottom */
+      cursor: pointer;
+    }
+    .cauldron-container:nth-child(2) {
+      margin-top: -180px;
+    }
+    
+    
+    .base-circle {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      z-index: 1;
+    }
+    
+    .top-circle {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      z-index: 2;
+      top: 32%;
+      left: 49%;
+      transform: translate(-50%, -50%); /* Center the top circle */
+      animation: rotateClockwise 5s linear infinite;
+    }
+    
+    .timer {
+      font-size: 20px;
+
+      font-size: 20px; 
+    margin-bottom: 50px; 
+    color: #000; 
+    font-weight: bold;
+    }
+
+    .flower-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px; /* Places the flowers further down */
+      width: 100%;
+    }
+
+    .flower {
+      width: 50px;
+      height: 50px;
+      margin: 10px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flower img {
+      width: 200%;
+      height: 200%;
+      border-radius: 50%;
+    }
+
+    .flower.dragging {
+      cursor: grabbing;
+      opacity: 0.5;
+    }
+
+    .drop-zone {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      z-index: 3;
+    }
+
+    .increase-timer {
+      padding: 5px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    @keyframes rotateClockwise {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Flower and Cauldron Game</h1>
+  <div class="game-container">
+    <div class="cauldron-container">
+      <div class="timer" id="timer-orange">1000</div>
+      <div class="cauldron" data-color="orange" onclick="increaseTime('orange')">
+        <img src="circle.png" alt="Base Circle" class="base-circle">
+        <img src="circleorange.png" alt="Orange Circle" class="top-circle">
+        <div class="drop-zone" data-color="orange"></div>
+      </div>
+    </div>
+    <div class="cauldron-container">
+      <div class="timer" id="timer-blue">1000</div>
+      <div class="cauldron" data-color="blue" onclick="increaseTime('blue')">
+        <img src="circle.png" alt="Base Circle" class="base-circle">
+        <img src="circleblue.png" alt="Blue Circle" class="top-circle">
+        <div class="drop-zone" data-color="blue"></div>
+      </div>
+    </div>
+    <div class="cauldron-container">
+      <div class="timer" id="timer-green">1000</div>
+      <div class="cauldron" data-color="green" onclick="increaseTime('green')">
+        <img src="circle.png" alt="Base Circle" class="base-circle">
+        <img src="circlegreen.png" alt="Green Circle" class="top-circle">
+        <div class="drop-zone" data-color="green"></div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="flower-container">
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+      <img src='blue.png'  alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+      <img src='green.png' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+      <img src='blue.png'  alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+      <img src='green.png' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+      <img src='blue.png'  alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+      <img src='green.png' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+      <img src='green.png' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+      <img src='green.png' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+      <img src='orange.png' alt="Orange Flower">
+    </div>
+  </div>
+
+  <script>
+    const flowers = document.querySelectorAll('.flower');
+    const cauldrons = document.querySelectorAll('.cauldron');
+    const timers = {
+      orange: document.getElementById('timer-orange'),
+      blue: document.getElementById('timer-blue'),
+      green: document.getElementById('timer-green')
+    };
+
+    flowers.forEach(flower => {
+      flower.addEventListener('dragstart', (e) => {
+        setTimeout(() => flower.classList.add('dragging'), 0);
+      });
+
+      flower.addEventListener('dragend', (e) => {
+        flower.classList.remove('dragging');
+      });
+    });
+
+    cauldrons.forEach(cauldron => {
+      const dropZone = cauldron.querySelector('.drop-zone');
+      const color = cauldron.getAttribute('data-color');
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const draggingFlower = document.querySelector('.flower.dragging');
+        if (draggingFlower && draggingFlower.getAttribute('data-color') === color) {
+          draggingFlower.remove();
+        }
+      });
+    });
+
+    function increaseTime(color) {
+      const currentTime = parseInt(timers[color].textContent, 10);
+      if (!isNaN(currentTime)) {
+        timers[color].textContent = currentTime + 5;
+      }
+    }
+
+    function startTimers() {
+      setInterval(() => {
+        Object.keys(timers).forEach(color => {
+          const timer = timers[color];
+          const time = parseInt(timer.textContent, 10);
+
+          if (time > 0) {
+            timer.textContent = time - 1;
+          } else {
+            alert(`Game Over! Cauldron ${color} ran out of time!`);
+            window.location.reload();
+          }
+        });
+      }, 1000);
+    }
+
+    startTimers();
+  </script>
+</body>
+</html>

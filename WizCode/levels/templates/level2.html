@@ -10,7 +10,6 @@
       }
     }
 </script>
-{% load static %}
 
 <style>
     body {
@@ -34,7 +33,11 @@
     import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
     import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
 
+<<<<<<< HEAD
+
+=======
     
+>>>>>>> 10c6da84312c75ba637a049988c40377ce948dca
     let scene, camera, renderer, flowers = [], clickedFlowers = [], font;
     let accuracyText;
 
@@ -259,6 +262,78 @@
         }
     }
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+    function cleanFlowerData() {
+        console.log('Current flower data:', flowerData);
+        console.log('Current flower data length:', flowerData.length);
+        console.log('First item details:', flowerData[0]);
+
+        // Convert to a format that's easier to parse
+        const cleanData = flowerData.map(flower => ({
+            id: flower.id,
+            modelPath: flower.modelPath,
+            // Add any other relevant fields
+        }));
+
+        // Use JSON.stringify to ensure proper formatting
+        const payload = JSON.stringify({
+            flower_data: cleanData
+        });
+
+        console.log('Payload being sent:', payload);
+
+        fetch('/clean_flower_data/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: payload
+        })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response text:', text);
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Full cleaning response:', data);
+
+                if (data.status === 'success') {
+                    // console.log(`Original data count: ${data.original_count}`);
+                    console.log(`Cleaned data count: ${data.cleaned_count}`);
+                    // console.log(`Removed count: ${data.removed_count}`);
+                    // console.log('Frontend flower IDs:', data.frontend_flower_ids);
+                    // console.log('Details:', data.details);
+                } else {
+                    console.error('Error cleaning flower data:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending clean data request:', error);
+            });
+    }
+
+
     function endGame() {
         // Clear the timer interval if it's still running
         if (gameTimer) {
@@ -282,6 +357,11 @@
         });
 
         console.log(flowerData)
+<<<<<<< HEAD
+        cleanFlowerData();
+        console.log(flowerData)
+=======
+>>>>>>> 10c6da84312c75ba637a049988c40377ce948dca
         // Remove click event listener to prevent further interactions
         window.removeEventListener('click', onMouseClick);
     }
