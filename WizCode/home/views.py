@@ -15,6 +15,7 @@ def home_view(request, *args, **kwargs):
         'user_level': level
     }
     
+    
 
     if(level==0):
         return render(request, 'home.html', context)

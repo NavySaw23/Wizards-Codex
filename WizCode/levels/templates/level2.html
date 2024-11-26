@@ -10,6 +10,7 @@
       }
     }
 </script>
+{% load static %}
 
 <style>
     body {
@@ -33,17 +34,13 @@
     import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
     import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
 
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 10c6da84312c75ba637a049988c40377ce948dca
     let scene, camera, renderer, flowers = [], clickedFlowers = [], font;
     let accuracyText;
 
     let gameStartTime;
     let gameTimer;
-    const GAME_DURATION = 6;
+    const GAME_DURATION = 60;
 
     // Parse the flower data passed from the Django template
     const flowerDataFromBackend = JSON.parse('{{ flower_data_json|escapejs }}');
@@ -84,8 +81,8 @@
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(5, 10, 7.5);
         scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 15);
 
-        const ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
 
         const loader = new FontLoader();
@@ -357,11 +354,7 @@
         });
 
         console.log(flowerData)
-<<<<<<< HEAD
         cleanFlowerData();
-        console.log(flowerData)
-=======
->>>>>>> 10c6da84312c75ba637a049988c40377ce948dca
         // Remove click event listener to prevent further interactions
         window.removeEventListener('click', onMouseClick);
     }

@@ -200,10 +200,7 @@
         // Function to populate voices for speech synthesis
         function populateVoices() {
             voices = synth.getVoices();
-            console.log("Voices available:");
-         voices.forEach(voice => {
-            console.log(`Voice: ${voice.name}, Lang: ${voice.lang}, Default: ${voice.default}`);
-        });
+            console.log("Voices available:", voices);  // Debug: See all available voices
         }
 
         // Set a default voice when voices are changed
@@ -256,6 +253,7 @@
 
             typeText(dialogText, dialogLine, () => {
                 // Wait for the voices to be loaded
+
                 if (voices.length === 0) {
                     console.log("Waiting for voices to load..."); // Debugging log
                     setTimeout(() => {
@@ -263,28 +261,13 @@
                     }, 100);
                     return;
                 }
-            
+
                 const speech = new SpeechSynthesisUtterance(dialogLine);
-            
-                let avatarVoice;
-                if (dialog.character === 'You') {
-                    avatarVoice = 'Google UK English Male'; // Voice for Main Character
-                } else {
-                    avatarVoice = 'Google UK English Female'; // Voice for NPC Character
+                speech.voice = voices.find(voice => voice.name === 'Google UK English Male');  // Set default voice
+                if (!speech.voice) {
+                    speech.voice = voices[0];  // Fallback to the first available voice
                 }
-            
-                if (avatarVoice) {
-                    speech.voice = voices.find(voice => voice.name === avatarVoice);
-                    if (!speech.voice) {
-                        console.warn(`Voice not found: ${avatarVoice}. Falling back to default voice.`);
-                        speech.voice = voices[0]; // Fallback to the first available voice
-                    }
-                } else {
-                    speech.voice = voices[0]; // Fallback to the first available voice if no avatar voice assigned
-                }
-            
-                console.log("Assigned voice:", speech.voice ? speech.voice.name : "No voice assigned");
-            
+
                 console.log("Speaking:", dialogLine);  // Debugging log
                 // Speak the dialog after a delay to ensure text is fully typed
                 setTimeout(() => {
@@ -319,7 +302,6 @@
         document.body.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 nextDialog();
-                
             } else if (event.key === 'Escape') {
                 location.reload();
             }

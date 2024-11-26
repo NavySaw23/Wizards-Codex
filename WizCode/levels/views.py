@@ -100,14 +100,7 @@ def lvl_view_2(request):
             processed_flower_info = []
             flower_data_for_js = []
             for flower in flower_info:
-                processed_flower = {
-                    'ID': flower.get('ID'),
-                    'Quality': flower.get('Quality'),
-                    'Size': f"{flower.get('Petal.Length', 'N/A')} x {flower.get('Petal.Width', 'N/A')}"
-                }
-                processed_flower_info.append(processed_flower)
-                
-                # Prepare data for JavaScript
+
                 flower_data_for_js.append({
                     'id': flower.get('ID'),
                     'quality': flower.get('Quality')
@@ -116,16 +109,12 @@ def lvl_view_2(request):
             import json
             flower_data_json = json.dumps(flower_data_for_js)
             
-            request.session['flower_info'] = processed_flower_info
-            
             return render(request, 'level2_Page.html', {
-                'flower_info': processed_flower_info,
                 'flower_data_json': flower_data_json
             })
         
         except FlowerData.DoesNotExist:
             return render(request, 'level2_Page.html', {
-                'flower_info': [], 
                 'flower_data_json': '[]'
             })
         
@@ -152,85 +141,22 @@ def lvl_view_3(request):
             processed_flower_info = []
             flower_data_for_js = []
             for flower in flower_info:
-                processed_flower = {
-                    'ID': flower.get('ID'),
-                    'Quality': flower.get('Quality'),
-                    'Size': f"{flower.get('Petal.Length', 'N/A')} x {flower.get('Petal.Width', 'N/A')}"
-                }
-                processed_flower_info.append(processed_flower)
-                
                 # Prepare data for JavaScript
                 flower_data_for_js.append({
                     'id': flower.get('ID'),
-                    'quality': flower.get('Quality')
+                    'species': flower.get('Species'),
+                    'size': (flower.get('Sepal.Length') * flower.get('Sepal.Width')),
                 })
             
             import json
             flower_data_json = json.dumps(flower_data_for_js)
             
-            request.session['flower_info'] = processed_flower_info
-            
             return render(request, 'level3_Page.html', {
-                'flower_info': processed_flower_info,
                 'flower_data_json': flower_data_json
             })
         
-<<<<<<< HEAD
-        return render(request, 'level2_Page.html', {
-            'flower_info': processed_flower_info,
-            'flower_data_json': flower_data_json
-        })
-    
-    except FlowerData.DoesNotExist:
-        return render(request, 'level2_Page.html', {
-            'flower_info': [], 
-            'flower_data_json': '[]'
-        })
-    
-
-def lvl_view_4(request):
-    if not request.user.is_authenticated:
-        return render(request, 'level2.html', {'flower_info': [], 'flower_data_json': '[]'})
-    
-    try:
-        latest_flower_data = FlowerData.objects.filter(user=request.user).latest('created_at')
-        flower_info = latest_flower_data.data
-
-        processed_flower_info = []
-        flower_data_for_js = []
-        for flower in flower_info:
-            processed_flower = {
-                'ID': flower.get('ID'),
-                'Quality': flower.get('Quality'),
-                'Size': flower.get('Petal.Length', 'N/A') 
-            }
-            processed_flower_info.append(processed_flower)
-            
-            # Prepare data for JavaScript
-            flower_data_for_js.append({
-                'id': flower.get('ID'),
-                'quality': flower.get('Quality')
-            })
-        
-        import json
-        flower_data_json = json.dumps(flower_data_for_js)
-        
-        
-        
-        return render(request, 'level2_Page.html', {
-            'flower_info': processed_flower_info,
-            'flower_data_json': flower_data_json
-        })
-    
-    except FlowerData.DoesNotExist:
-        return render(request, 'level2_Page.html', {
-            'flower_info': [], 
-            'flower_data_json': '[]'
-        })
-=======
         except FlowerData.DoesNotExist:
             return render(request, 'level3_Page.html', {
-                'flower_info': [], 
                 'flower_data_json': '[]'
             })
 
@@ -243,7 +169,7 @@ def lvl_view_4(request):
     if level == 0:
         return render(request, 'home.html')
     elif level == 40:
-        # Update level to progress to next stage
+        # Update level to progress to the next stage
         FlowerData.objects.filter(user=request.user).update(level=45)
         return render(request, 'L4_dialogue.html')
     else:
@@ -251,38 +177,27 @@ def lvl_view_4(request):
         FlowerData.objects.filter(user=request.user).update(level=max(50, level))
         
         try:
+            # Get the latest flower data
             latest_flower_data = FlowerData.objects.filter(user=request.user).latest('created_at')
             flower_info = latest_flower_data.data
 
-            processed_flower_info = []
-            flower_data_for_js = []
+            # Process flower info to extract species and assign colors
+            flower_colors = []
             for flower in flower_info:
-                processed_flower = {
-                    'ID': flower.get('ID'),
-                    'Quality': flower.get('Quality'),
-                    'Size': f"{flower.get('Petal.Length', 'N/A')} x {flower.get('Petal.Width', 'N/A')}"
-                }
-                processed_flower_info.append(processed_flower)
-                
-                # Prepare data for JavaScript
-                flower_data_for_js.append({
-                    'id': flower.get('ID'),
-                    'quality': flower.get('Quality')
-                })
-            
-            import json
-            flower_data_json = json.dumps(flower_data_for_js)
-            
-            request.session['flower_info'] = processed_flower_info
+                species = flower.get('Species', '').lower()
+                if species == 'setosa':
+                    color = 'orange'
+                elif species == 'versicolor':
+                    color = 'blue'
+                else:
+                    color = 'green'
+                flower_colors.append(color)
             
             return render(request, 'level4_Page.html', {
-                'flower_info': processed_flower_info,
-                'flower_data_json': flower_data_json
+                'flower_colors': flower_colors
             })
         
         except FlowerData.DoesNotExist:
             return render(request, 'level4_Page.html', {
-                'flower_info': [], 
-                'flower_data_json': '[]'
+                'flower_colors': []
             })
->>>>>>> 10c6da84312c75ba637a049988c40377ce948dca

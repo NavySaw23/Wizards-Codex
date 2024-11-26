@@ -1,101 +1,462 @@
 {% load static %}
+<canvas id="gameCanvas"></canvas>
+<div id="timer" style="position: absolute; top: 100px; left: 10px; font-size: 24px; color: white;"></div>
+
 
 <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-
 <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
-      }
-    }
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+  }
+}
 </script>
-{% load static %}
 
-<style>
-    body {
-        margin: 0;
-    }
-</style>
-
-<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-
-<script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
-      }
-    }
-</script>
 <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { FontLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/FontLoader.js';
-    import { TextGeometry } from 'https://unpkg.com/three@0.150.1/examples/jsm/geometries/TextGeometry.js';
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { DragControls } from 'three/addons/controls/DragControls.js';
+    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 
-    
-    let scene, camera, renderer
 
-    // Parse the flower data passed from the Django template
-    const flowerDataFromBackend = JSON.parse('{{ flower_data_json|escapejs }}');
+    // Configuration variable - can be updated dynamically
+    let NUM_PIECES = 10;  // Default number of pieces
+    let successfulMatches = 0;
+    let gameEnd = false;
+    const FontFile = '{%static "Magic_School.json" %}';
 
-    // Dynamic flower data generation based on backend data
-    var flowerData = flowerDataFromBackend.map(function (flower) {
-        return {
-            id: flower.id,
-            modelPath: flower.quality === 'good'
-                ? "{% static 'models/flower_green.glb' %}"
-                : "{% static 'models/flower_red.glb' %}"
-        };
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById('gameCanvas'),
+        antialias: true
     });
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let totalFlowers = flowerData.length;
-    let goodFlowers = flowerData.filter(flower =>
-        flower.modelPath.includes('flower_green')
-    ).length;
+    // Grid and piece parameters
+    const GRID_SIZE = 5;
+    const PIECE_HEIGHT = 0.1;  // Constant height
+    const pieces = [];
+    const sidePieces = [];
+    const gridMatrix = Array.from({ length: GRID_SIZE }, () =>
+        Array(GRID_SIZE).fill(null)
+    );
 
-    flowerData = flowerDataFromBackend.map(function (flower) {
-        return {
-            id: flower.id,
-            modelPath: flower.quality === 'good'
-                ? "{% static 'models/flower_green.glb' %}"
-                : "{% static 'models/flower_red.glb' %}"
-        };
-    }).sort(() => Math.random() - 0.5);
+    // Camera positioning
+    camera.position.set(0, 10, 10);
+    camera.lookAt(0, 0, 0);
 
-    function init() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+    // Orbit Controls
+    const orbitControls = new OrbitControls(camera, renderer.domElement);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
 
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 10, 7.5);
-        scene.add(light);
+    function createAxisLabels(font) {
+        // Petal Count Label (X-axis)
+        const petalCountGeometry = new TextGeometry('Petal Count', {
+            font: font,
+            size: 0.5,  // Larger size for main label
+            height: 0.1,
+        });
+        const petalCountMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const petalCountMesh = new THREE.Mesh(petalCountGeometry, petalCountMaterial);
 
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
+        // Position the "Petal Count" label below the X-axis
+        petalCountMesh.position.set(
+            -GRID_SIZE / 2 +1.5,  // Centered 
+            0,              // Below the grid
+            -GRID_SIZE / 2 - 1  // Slightly offset from the grid
+        );
+        petalCountMesh.rotation.x = -Math.PI / 2;
+        scene.add(petalCountMesh);
 
+        // Price Label (Y-axis)
+        const priceGeometry = new TextGeometry('Price', {
+            font: font,
+            size: 0.5,  // Larger size for main label
+            height: 0.1,
+        });
+        const priceMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const priceMesh = new THREE.Mesh(priceGeometry, priceMaterial);
+
+        // Position the "Price" label 
+        priceMesh.position.set(
+            -GRID_SIZE / 2 + 6,  // Left of the grid
+            0,
+            GRID_SIZE / 2 - 2   // Above the grid
+        );
+        priceMesh.rotation.x = -Math.PI / 2;
+        priceMesh.rotation.z = Math.PI / 2;  // Rotate to align vertically
+        scene.add(priceMesh);
+    }
+
+    // Create grid
+    function createGrid() {
+        const gridHelper = new THREE.GridHelper(GRID_SIZE, GRID_SIZE);
+        scene.add(gridHelper);
+
+        // Add X and Z axis labels
         const loader = new FontLoader();
-        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
-            font = loadedFont;
-            createTextObjects();
-            createFlowers();
-            animate();
+        loader.load(FontFile, (font) => {
 
-            gameStartTime = Date.now();
-            startGameTimer();
+            createAxisLabels(font);
+            // X-axis labels
+            for (let x = 0; x < GRID_SIZE; x++) {
+                const textGeometry = new TextGeometry(`${x}`, {
+                    font: font,
+                    size: 0.3,
+                    height: 0.1,
+                });
+                const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+                textMesh.position.set(
+                    x - GRID_SIZE / 2 + 0.5,
+                    0,
+                    -GRID_SIZE / 2 - 0.5
+                );
+                textMesh.rotation.x = -Math.PI / 2;
+                scene.add(textMesh);
+            }
+
+            // Z-axis labels
+            for (let z = 0; z < GRID_SIZE; z++) {
+                const textGeometry = new TextGeometry(`${z}`, {
+                    font: font,
+                    size: 0.3,
+                    height: 0.1,
+                });
+                const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+                textMesh.position.set(
+                    -GRID_SIZE / 2 + 5.2,
+                    0,
+                    z - GRID_SIZE / 2 + 0.5
+                );
+                textMesh.rotation.x = -Math.PI / 2;
+                scene.add(textMesh);
+            }
+        });
+    }
+
+    function createSideGrid() {
+        const sideGridHelper = new THREE.GridHelper(GRID_SIZE, GRID_SIZE);
+        sideGridHelper.position.set(-GRID_SIZE - 1, 0, 0);
+        scene.add(sideGridHelper);
+
+    }
+
+    // Create a piece
+    function createPiece(x, z, isMainGrid = true) {
+        // Check if the slot is already occupied
+        if (isMainGrid && gridMatrix[z][x] !== null) {
+            console.log(`Slot (${x}, ${z}) is already occupied`);
+            return null;
+        }
+
+        const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.2, 32);
+        const material = isMainGrid
+            ? new THREE.MeshBasicMaterial({ color: 0xffffff })
+            : new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+        const piece = new THREE.Mesh(geometry, material);
+
+        // Position piece precisely on grid
+        piece.position.set(
+            isMainGrid
+                ? (x - GRID_SIZE / 2 + 0.5)
+                : (x - GRID_SIZE / 2 + 0.5 - (GRID_SIZE + 1)),
+            PIECE_HEIGHT,
+            z - GRID_SIZE / 2 + 0.5
+        );
+
+        // Store grid coordinates
+        piece.userData.gridX = x;
+        piece.userData.gridZ = z;
+        piece.userData.originalY = PIECE_HEIGHT;
+        piece.userData.isMainGrid = isMainGrid;
+
+        scene.add(piece);
+        return piece;
+    }
+
+    // Initialize pieces
+    function setupPieces() {
+        // Clear existing pieces from main grid
+        pieces.forEach(piece => scene.remove(piece));
+        pieces.length = 0;
+        gridMatrix.forEach(row => row.fill(null));
+
+        // Clear existing pieces from side grid
+        sidePieces.forEach(piece => scene.remove(piece));
+        sidePieces.length = 0;
+
+        // Generate random unique positions for main grid
+        const mainGridPositions = [];
+        for (let x = 0; x < GRID_SIZE; x++) {
+            for (let z = 0; z < GRID_SIZE; z++) {
+                mainGridPositions.push([x, z]);
+            }
+        }
+
+        // Shuffle main grid positions
+        for (let i = mainGridPositions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [mainGridPositions[i], mainGridPositions[j]] = [mainGridPositions[j], mainGridPositions[i]];
+        }
+
+        // Create pieces for main grid
+        for (let i = 0; i < NUM_PIECES && i < mainGridPositions.length; i++) {
+            const [x, z] = mainGridPositions[i];
+            const piece = createPiece(x, z, true);
+            if (piece) {
+                pieces.push(piece);
+                gridMatrix[z][x] = piece;
+            }
+        }
+
+        // Create pieces for side grid
+        const sideGridPositions = [...mainGridPositions];
+        // Shuffle side grid positions
+        for (let i = sideGridPositions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [sideGridPositions[i], sideGridPositions[j]] = [sideGridPositions[j], sideGridPositions[i]];
+        }
+
+        // Create side grid pieces
+        for (let i = 0; i < NUM_PIECES && i < sideGridPositions.length; i++) {
+            const [x, z] = sideGridPositions[i];
+            const piece = createPiece(x, z, false);
+            if (piece) {
+                sidePieces.push(piece);
+            }
+        }
+
+        // Drag Controls for main grid pieces
+        const dragControls = new DragControls(pieces, camera, renderer.domElement);
+
+        dragControls.addEventListener('dragstart', (event) => {
+            orbitControls.enabled = false;
         });
 
+        dragControls.addEventListener('dragend', (event) => {
+            snapToGrid(event.object);
+            orbitControls.enabled = true;
+        });
+
+        // Modify dragging to keep Y constant
+        dragControls.addEventListener('drag', (event) => {
+            // Maintain original Y position during drag
+            event.object.position.y = event.object.userData.originalY;
+        });
+    }
+
+    // Snap piece to grid
+    function snapToGrid(piece) {
+        // Only snap main grid pieces
+        if (!piece.userData.isMainGrid) return;
+
+        // Calculate precise grid coordinates
+        const gridX = Math.round(piece.position.x + GRID_SIZE / 2 - 0.5);
+        const gridZ = Math.round(piece.position.z + GRID_SIZE / 2 - 0.5);
+
+        // Validate grid bounds
+        if (gridX >= 0 && gridX < GRID_SIZE && gridZ >= 0 && gridZ < GRID_SIZE) {
+            // Check if the target slot is occupied
+            if (gridMatrix[gridZ][gridX] !== null && gridMatrix[gridZ][gridX] !== piece) {
+                // Revert to original position if slot is occupied
+                piece.position.x = piece.userData.gridX - GRID_SIZE / 2 + 0.5;
+                piece.position.z = piece.userData.gridZ - GRID_SIZE / 2 + 0.5;
+                return;
+            }
+
+            // Clear previous position
+            gridMatrix[piece.userData.gridZ][piece.userData.gridX] = null;
+
+            // Snap to exact grid center
+            piece.position.x = gridX - GRID_SIZE / 2 + 0.5;
+            piece.position.z = gridZ - GRID_SIZE / 2 + 0.5;
+
+            // Update user data with new grid coordinates
+            piece.userData.gridX = gridX;
+            piece.userData.gridZ = gridZ;
+
+            // Mark new position as occupied
+            gridMatrix[gridZ][gridX] = piece;
+        } else {
+            // Revert to original position if out of bounds
+            piece.position.x = piece.userData.gridX - GRID_SIZE / 2 + 0.5;
+            piece.position.z = piece.userData.gridZ - GRID_SIZE / 2 + 0.5;
+        }
+    }
+
+    // Update number of pieces
+    window.setNumPieces = (num) => {
+        // Validate input
+        NUM_PIECES = Math.max(1, Math.min(20, Math.floor(num)));
+        setupPieces();
+    };
+
+    // Function to display endgame message
+    function endgame(message) {
+        // Clear any existing game elements
+        scene.children = scene.children.filter(child =>
+            child instanceof THREE.GridHelper
+        );
+
+        // Create endgame message
+        const endgameMessage = document.createElement('div');
+        endgameMessage.style.position = 'absolute';
+        endgameMessage.style.top = '50%';
+        endgameMessage.style.left = '50%';
+        endgameMessage.style.transform = 'translate(-50%, -50%)';
+        endgameMessage.style.fontSize = '48px';
+        endgameMessage.style.color = 'white';
+        endgameMessage.style.textAlign = 'center';
+
+        if (message === "Game Win") {
+            endgameMessage.innerText = `Congratulations!\nYou completed all matches! \n\nPress enter to continue`;
+        } else {
+            endgameMessage.innerText = message;
+        }
+
+        document.body.appendChild(endgameMessage);
 
     }
 
-    function startGameTimer() {
-        
+
+    // Function to compare the two grids
+    function compareGrids() {
+        // Print main grid
+        console.log("Main Grid:");
+        gridMatrix.forEach((row, rowIndex) => {
+            const rowPrint = row.map(cell =>
+                cell ? `(${cell.userData.gridX},${cell.userData.gridZ})` : 'null'
+            );
+            console.log(`Row ${rowIndex}: [${rowPrint.join(', ')}]`);
+        });
+
+        // Print side grid positions
+        console.log("\nSide Grid Pieces:");
+        sidePieces.forEach((piece, index) => {
+            console.log(`Piece ${index}: (${piece.userData.gridX}, ${piece.userData.gridZ})`);
+        });
+
+        // Comparison logic
+        const mainGridOccupied = pieces.map(piece => [piece.userData.gridX, piece.userData.gridZ]);
+        const sideGridOccupied = sidePieces.map(piece => [piece.userData.gridX, piece.userData.gridZ]);
+
+        console.log("\nMain Grid Occupied Positions:");
+        console.log(mainGridOccupied);
+        console.log("\nSide Grid Occupied Positions:");
+        console.log(sideGridOccupied);
+
+        // Check if every occupied position in the main grid matches the side grid
+        const allMatch = mainGridOccupied.length === sideGridOccupied.length &&
+            mainGridOccupied.every(pos =>
+                sideGridOccupied.some(sidePos =>
+                    sidePos[0] === pos[0] && sidePos[1] === pos[1]
+                )
+            );
+
+        console.log("\nGrids Match:", allMatch);
+
+        if (allMatch) {
+            successfulMatches++;
+            console.log(`Successful Matches: ${successfulMatches}`);
+
+            if (successfulMatches >= 5) {
+                gameEnd = true;
+                endgame("Game Win");
+
+            } else {
+                // Create a temporary message to show current match count
+                const matchMessage = document.createElement('div');
+                matchMessage.style.position = 'absolute';
+                matchMessage.style.top = '10%';
+                matchMessage.style.left = '50%';
+                matchMessage.style.transform = 'translateX(-50%)';
+                matchMessage.style.fontSize = '24px';
+                matchMessage.style.color = 'white';
+                matchMessage.innerText = `Match ${successfulMatches}/5 Completed!`;
+                document.body.appendChild(matchMessage);
+
+                // Remove the message after 2 seconds
+                setTimeout(() => {
+                    document.body.removeChild(matchMessage);
+                }, 2000);
+
+                // Reset the board
+                setupPieces();
+            }
+        }
     }
+
+    // Timer setup
+    const GAME_DURATION = 1 * 60 * 1000;
+    let remainingTime = GAME_DURATION; // total game duration in milliseconds
+
+    // Timer display function
+    function updateTimerDisplay() {
+        const timerElement = document.getElementById('timer');
+        const seconds = Math.floor((remainingTime / 1000) % 60);
+        const minutes = Math.floor((remainingTime / 1000 / 60) % 60);
+        timerElement.innerText = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    // Update the timer every second
+    setInterval(() => {
+        if (remainingTime > 0 && !gameEnd) {
+            remainingTime -= 1000; // decrease by 1 second
+            updateTimerDisplay();
+        }
+    }, 1000);
+
+    // Timer setup
+    setTimeout(() => {
+        if (!gameEnd) {
+            gameEnd = true;
+            endgame("Game Over");
+        }
+    }, GAME_DURATION);
+
+    // Initialize the timer display
+    updateTimerDisplay();
+
+
+    // Animation loop
+    function animate() {
+        compareGrids();
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+
+    // Initialize the scene
+    createGrid();
+    createSideGrid();
+    setupPieces();
+    animate();
+
+
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+
+
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && gameEnd) {
+            window.location.href = '/';
+        }
+    });
 
 </script>
