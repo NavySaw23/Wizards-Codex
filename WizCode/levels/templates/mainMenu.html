@@ -36,8 +36,13 @@
 <script type="module">
   let debugmode = false;
   let orthomode = false;
+<<<<<<< HEAD
 //    debugmode = true;
 //    orthomode = true;
+=======
+   debugmode = true;
+   orthomode = true;
+>>>>>>> 8b31c8fec0f12febae758eae169152fd5ad7ae68
 
   // ---Imports----------------------------------------------------------------
   import * as THREE from "three";
@@ -451,7 +456,11 @@
     const CharacterShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
     CharacterBody = new CANNON.Body({
       mass: 1, // Give the Character some mass
+<<<<<<< HEAD
       position: new CANNON.Vec3(5, 1, 0),
+=======
+      position: new CANNON.Vec3(0, 1, 0),
+>>>>>>> 8b31c8fec0f12febae758eae169152fd5ad7ae68
       shape: CharacterShape,
       velocity: new CANNON.Vec3(0, 0, 0),
     });
