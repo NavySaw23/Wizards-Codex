@@ -15,6 +15,9 @@
 <style>
     body {
         margin: 0;
+        background-image: url('{% static "img/Fountain.jpg" %}');
+        background-size: cover;
+        background-position: center;
     }
 </style>
 
@@ -40,11 +43,8 @@
 
     let gameStartTime;
     let gameTimer;
-<<<<<<< HEAD
-    const GAME_DURATION = 60;
-=======
+
     const GAME_DURATION = 30;
->>>>>>> 8b31c8fec0f12febae758eae169152fd5ad7ae68
 
     // Parse the flower data passed from the Django template
     const flowerDataFromBackend = JSON.parse('{{ flower_data_json|escapejs }}');
@@ -76,9 +76,14 @@
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, 1, 1000);
         camera.position.z = 5;
 
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true, // Set alpha to true for transparent background
+            preserveDrawingBuffer: true
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -92,7 +97,7 @@
         const loader = new FontLoader();
         loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
             font = loadedFont;
-            createTextObjects();
+            // createTextObjects();
             createFlowers();
             animate();
 
@@ -115,7 +120,7 @@
             }
 
             const accuracy = totalFlowers > 0 ? ((goodFlowers / totalFlowers) * 100).toFixed(1) : 0;
-            accuracyText = createText(`Accuracy: ${accuracy}%\nTime: ${remainingTime}s`, 0.25, { x: -1, y: 3 });
+            // accuracyText = createText(`Accuracy: ${accuracy}%\nTime: ${remainingTime}s`, 0.25, { x: -8, y: 3 });
 
             // End game when timer reaches zero
             if (remainingTime <= 0) {
@@ -135,7 +140,7 @@
             scene.remove(accuracyText);
         }
         const accuracy = totalFlowers > 0 ? ((goodFlowers / totalFlowers) * 100).toFixed(1) : 0;
-        accuracyText = createText(`Accuracy: ${accuracy}%`, 0.25, { x: -1, y: 3 });
+        // accuracyText = createText(`Accuracy: ${accuracy}%`, 0.25, { x: -1, y: 3 });
     }
 
     function createText(message, size, position) {
@@ -144,9 +149,11 @@
             size: size,
             height: 0.05,
         });
-        const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const textMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Change color to black
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
         textMesh.position.set(position.x, position.y, 0);
+        textMesh.rotation.y += 0.5;
+        textMesh.rotation.x += 0.2;
         scene.add(textMesh);
         return textMesh;
     }

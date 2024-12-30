@@ -92,11 +92,10 @@
             color: white;
         }
 
-        #control-text{
+        #control-text {
             margin-top: 1rem;
             color: #DDDDDD;
         }
-
     </style>
 </head>
 
@@ -118,7 +117,7 @@
         <div class="dialog-box" id="dia">
             <div id="name-box" class="name-box">Main Character</div>
             <div id="dialog-text" class="dialog-text">This is a placeholder for dialog text.</div>
-           
+
             <div id="control-text">Press ENTER to proceed, ESC to skip</div>
         </div>
     </div>
@@ -131,40 +130,97 @@
         const dialogData = [
             {
                 character: 'You',
-                image: './Three.JS/Images/2.png',
                 dialog: [
-                    "Wow, thats a mystical looking garden",
-                    "But why are we looking for flowers?"
+                    "Hey! I'm ready for my next task. What's it about?"
                 ]
             },
             {
                 character: 'Classmate',
-                image: './Three.JS/Images/1.png',
                 dialog: [
-                    "Asphodel Flowers are used in making potions",
-                    "If you want to create a good potion, you need good flowers",
-                    "This is call the Data Collection Phase",
-                    "You came to this school to become a great Wizard AI Model right?",
+                    "Great! This task is all about **Data Filtering**.",
+                    "Sometimes, we have too much data, and not all of it is useful."
                 ]
             },
             {
                 character: 'You',
-                image: './Three.JS/Images/2.png',
                 dialog: [
-                    "Yes, that is my dream!"
+                    "Data Filtering? Sounds important. How does it work?"
                 ]
             },
             {
                 character: 'Classmate',
-                image: './Three.JS/Images/1.png',
                 dialog: [
-                    "So in order to become a great AI Model, you need training",
-                    "And training is easier when you have more data.",
-                    "So, let's go collect some data in the form of flowers",
-                    "good luck!",
+                    "Imagine a garden full of flowers.",
+                    "Some of these flowers are useful, but others are just clutter."
                 ]
             },
+            {
+                character: 'You',
+                dialog: [
+                    "Okay, so I need to remove the clutter?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                dialog: [
+                    "Exactly! You'll see two types of flowers appear on the screen:",
+                    "- **Red Flowers** are unnecessary. You need to **shoot them down**.",
+                    "- **Green Flowers** are important. Don't touch them!"
+                ]
+            },
+            {
+                character: 'You',
+                dialog: [
+                    "Got it! Shoot the Red Flowers, leave the Green ones alone."
+                ]
+            },
+            {
+                character: 'Classmate',
+                dialog: [
+                    "Exactly! But be careful.",
+                    "If you accidentally shoot a Green Flower, your **accuracy will decrease**."
+                ]
+            },
+            {
+                character: 'You',
+                dialog: [
+                    "What happens if my accuracy gets too low?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                dialog: [
+                    "If your accuracy drops too much, you'll fail the task.",
+                    "Oh, and there's a **timer**—you need to clear all the Red Flowers before it runs out!"
+                ]
+            },
+            {
+                character: 'You',
+                dialog: [
+                    "A timer? Got it. So I need to be fast and accurate."
+                ]
+            },
+            {
+                character: 'Classmate',
+                dialog: [
+                    "Exactly! Focus on your aim and don't rush.",
+                    "Accuracy is more important than speed."
+                ]
+            },
+            {
+                character: 'You',
+                dialog: [
+                    "Alright, I'm ready to filter out the unnecessary data!"
+                ]
+            },
+            {
+                character: 'Classmate',
+                dialog: [
+                    "Good luck! Let's see how well you can clean up the data!"
+                ]
+            }
         ];
+
 
         let currentDialogIndex = 0;
         let currentLineIndex = 0;

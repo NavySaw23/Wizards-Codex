@@ -19,7 +19,7 @@
             flex-direction: column;
             justify-content: space-between;
             height: 90vh;
-            background: url("{%static 'img/garden.jpg'%}") center/cover no-repeat;
+            background: url("{%static 'img/Level4.jpg'%}") center/cover no-repeat;
         }
 
         .character-area {
@@ -92,11 +92,10 @@
             color: white;
         }
 
-        #control-text{
+        #control-text {
             margin-top: 1rem;
             color: #DDDDDD;
         }
-
     </style>
 </head>
 
@@ -118,7 +117,7 @@
         <div class="dialog-box" id="dia">
             <div id="name-box" class="name-box">Main Character</div>
             <div id="dialog-text" class="dialog-text">This is a placeholder for dialog text.</div>
-           
+
             <div id="control-text">Press ENTER to proceed, ESC to skip</div>
         </div>
     </div>
@@ -133,38 +132,111 @@
                 character: 'You',
                 image: './Three.JS/Images/2.png',
                 dialog: [
-                    "Wow, thats a mystical looking garden",
-                    "But why are we looking for flowers?"
+                    "I'm back from the garden!",
+                    "What's next?"
                 ]
             },
             {
                 character: 'Classmate',
                 image: './Three.JS/Images/1.png',
                 dialog: [
-                    "Asphodel Flowers are used in making potions",
-                    "If you want to create a good potion, you need good flowers",
-                    "This is call the Data Collection Phase",
-                    "You came to this school to become a great Wizard AI Model right?",
+                    "Perfect timing!",
+                    "Now we move on to our next lesson: **Logistic Regression**."
                 ]
             },
             {
                 character: 'You',
                 image: './Three.JS/Images/2.png',
                 dialog: [
-                    "Yes, that is my dream!"
+                    "Logistic Regression? What's that?"
                 ]
             },
             {
                 character: 'Classmate',
                 image: './Three.JS/Images/1.png',
                 dialog: [
-                    "So in order to become a great AI Model, you need training",
-                    "And training is easier when you have more data.",
-                    "So, let's go collect some data in the form of flowers",
-                    "good luck!",
+                    "It's a method we use to **classify things into categories**.",
+                    "For example, you can categorize flowers into three colors: \"orange\", \"blue\", and \"green\""
                 ]
             },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Interesting! So, what do I need to do?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Your task is to place each flower into the correct cauldron."
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Got it! But how do I decide which flower goes where?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Ah, here's where it gets fun!",
+                    "Each flower has unique colors.",
+                    "Use this feature to determine which cauldron the flowers go into"
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Sounds straightforward! What if I need more time to think?"
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "There's a trick! Once you've placed a few flowers in the cauldron, **stir it**.",
+                    "Each stir gives you **5 extra seconds** to finish sorting the rest."
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Stirring the cauldron gives me time? That's handy!",
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Yes! But remember, accuracy matters.",
+                    "Classifying all the flowers correctly is the key to completing the task."
+                ]
+            },
+            {
+                character: 'You',
+                image: './Three.JS/Images/2.png',
+                dialog: [
+                    "Alright, I'm ready!",
+                    "Let's get these flowers sorted."
+                ]
+            },
+            {
+                character: 'Classmate',
+                image: './Three.JS/Images/1.png',
+                dialog: [
+                    "Good luck! And remember: every decision counts."
+                ]
+            }
         ];
+
+
 
         let currentDialogIndex = 0;
         let currentLineIndex = 0;

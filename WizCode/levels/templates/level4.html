@@ -8,17 +8,34 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #f0f8ff;
+        /* background-color: #f0f8ff; */
         height: 100vh;
         justify-content: space-between;
-        /* Ensures flowers are at the bottom */
+
+        background-image: url('{% static "img/Rug.jpg" %}');
+        background-size: cover;
+        background-position: center;
     }
 
     h1 {
         margin-top: 20px;
     }
 
-    
+    .navbar {
+        width: 100vw;
+    }
+
+    .gameover {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 24px;
+        font-weight: bold;
+        color: red;
+        text-align: center;
+    }
+
     .game-container {
         display: flex;
         justify-content: center;
@@ -32,6 +49,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin: 0 10%;
     }
 
     .cauldron {
@@ -55,16 +73,17 @@
         position: absolute;
         width: 100%;
         height: auto;
-        z-index: 1;
+        z-index: -1;
     }
 
     .top-circle {
         position: absolute;
         width: 100%;
         height: auto;
-        z-index: 2;
+        z-index: -2;
         top: 32%;
         left: 49%;
+
         transform: translate(-50%, -50%);
         /* Center the top circle */
         animation: rotateClockwise 5s linear infinite;
@@ -75,7 +94,8 @@
 
         font-size: 20px;
         margin-bottom: 50px;
-        color: #000;
+        color: #fff;
+        text-shadow: 2px 2px 4px #000000;
         font-weight: bold;
     }
 
@@ -83,9 +103,11 @@
         display: flex;
         justify-content: center;
         margin-bottom: 30px;
-        /* Places the flowers further down */
         width: 100%;
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
     }
+
 
     .flower {
         width: 100px;
@@ -147,7 +169,8 @@
     <div class="cauldron-container">
         <div class="timer" id="timer-orange">20</div>
         <div class="cauldron" data-color="orange" onclick="increaseTime('orange')">
-            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle">
+            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle" style="transform: scale(0.95)"
+                ;>
             <img src='{% static "img/circleorange.png"%}' alt="Orange Circle" class="top-circle">
             <div class="drop-zone" data-color="orange"></div>
         </div>
@@ -155,7 +178,8 @@
     <div class="cauldron-container">
         <div class="timer" id="timer-blue">20</div>
         <div class="cauldron" data-color="blue" onclick="increaseTime('blue')">
-            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle">
+            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle" style="transform: scale(0.95)"
+                ;>
             <img src='{% static "img/circleblue.png"%}' alt="Blue Circle" class="top-circle">
             <div class="drop-zone" data-color="blue"></div>
         </div>
@@ -163,18 +187,59 @@
     <div class="cauldron-container">
         <div class="timer" id="timer-green">20</div>
         <div class="cauldron" data-color="green" onclick="increaseTime('green')">
-            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle">
+            <img src='{% static "img/circle.png"%}' alt="Base Circle" class="base-circle"
+                style="transform: scale(0.95);">
             <img src='{% static "img/circlegreen.png"%}' alt="Green Circle" class="top-circle">
             <div class="drop-zone" data-color="green"></div>
         </div>
     </div>
 </div>
-<div id="flower-container">
-    {% for color in flower_colors %}
-    <div class="flower" style="background-color: {{ color }};"></div>
-    {% endfor %}
-  </div>
 
+
+<div class="flower-container">
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+        <img src='{% static "img/blue.png" %}' alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+        <img src='{% static "img/green.png" %}' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+        <img src='{% static "img/blue.png" %}' alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+        <img src='{% static "img/green.png" %}' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="blue">
+        <img src='{% static "img/blue.png" %}' alt="Blue Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+        <img src='{% static "img/green.png" %}' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+        <img src='{% static "img/green.png" %}' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="green">
+        <img src='{% static "img/green.png" %}' alt="Green Flower">
+    </div>
+    <div class="flower" draggable="true" data-color="orange">
+        <img src='{% static "img/orange.png" %}' alt="Orange Flower">
+    </div>
+</div>
 
 <script>
 
@@ -221,6 +286,8 @@
         }
     }
 
+    let gameOver = false;
+
     function startTimers() {
         setInterval(() => {
             Object.keys(timers).forEach(color => {
@@ -229,13 +296,22 @@
 
                 if (time > 0) {
                     timer.textContent = time - 1;
-                } else {
-                    alert(`Game Over! Cauldron ${color} ran out of time!`);
-                    window.location.reload();
+                } else if (!gameOver) {
+
+                    document.body.innerHTML += `<div id="game-over" class="gameover"> Game Over! <br> ${color} Cauldron ran out of time! <br> Press enter to return to main menu</div>`
+                    gameOver = true;
                 }
             });
         }, 1000);
     }
-
+    document.addEventListener('keydown', (e) => {
+        if (gameOver && e.key === 'Enter') {
+            document.getElementById('game-over').remove();
+            gameOver = false;
+            Object.keys(timers).forEach(color => {
+                timers[color].textContent = 20;
+            });
+        }
+    });
     startTimers();
 </script>

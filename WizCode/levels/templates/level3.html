@@ -1,6 +1,31 @@
 {% load static %}
-<canvas id="gameCanvas"></canvas>
-<div id="timer" style="position: absolute; top: 100px; left: 10px; font-size: 24px; color: white;"></div>
+<div class="blur">
+    <canvas id="gameCanvas"></canvas>
+    <div id="timer" style="position: absolute; top: 100px; left: 10px; font-size: 24px; color: white;"></div>
+</div>
+
+<style>
+    body {
+        /* background-image: url('{% static "img/Indoor.jpg" %}'); */
+        background-size: cover;
+        background-position: center;
+    }
+
+    .blur {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('{% static "img/Indoor.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        backdrop-filter: blur(10px);
+        z-index: -1;
+    }
+</style>
+
 
 
 <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -15,7 +40,7 @@
 
 <script type="module">
     import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { DragControls } from 'three/addons/controls/DragControls.js';
     import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
     import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -34,6 +59,7 @@
         canvas: document.getElementById('gameCanvas'),
         antialias: true
     });
+    renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Grid and piece parameters
@@ -46,11 +72,11 @@
     );
 
     // Camera positioning
-    camera.position.set(0, 10, 10);
+    camera.position.set(0, 10, 2);
     camera.lookAt(0, 0, 0);
 
     // Orbit Controls
-    const orbitControls = new OrbitControls(camera, renderer.domElement);
+    // const orbitControls = new OrbitControls(camera, renderer.domElement);
 
 
     function createAxisLabels(font) {
@@ -65,7 +91,7 @@
 
         // Position the "Petal Count" label below the X-axis
         petalCountMesh.position.set(
-            -GRID_SIZE / 2 +1.5,  // Centered 
+            -GRID_SIZE / 2 + 1.5,  // Centered 
             0,              // Below the grid
             -GRID_SIZE / 2 - 1  // Slightly offset from the grid
         );
@@ -160,7 +186,7 @@
         const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.2, 32);
         const material = isMainGrid
             ? new THREE.MeshBasicMaterial({ color: 0xffffff })
-            : new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            : new THREE.MeshBasicMaterial({ color: 0xFFCC20 });
 
         const piece = new THREE.Mesh(geometry, material);
 
@@ -239,12 +265,12 @@
         const dragControls = new DragControls(pieces, camera, renderer.domElement);
 
         dragControls.addEventListener('dragstart', (event) => {
-            orbitControls.enabled = false;
+            // orbitControls.enabled = false;
         });
 
         dragControls.addEventListener('dragend', (event) => {
             snapToGrid(event.object);
-            orbitControls.enabled = true;
+            // orbitControls.enabled = true;
         });
 
         // Modify dragging to keep Y constant

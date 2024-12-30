@@ -19,7 +19,7 @@
             flex-direction: column;
             justify-content: space-between;
             height: 90vh;
-            background: url("{%static 'img/garden.jpg'%}") center/cover no-repeat;
+            background: url("{%static 'img/Fountain.jpg'%}") center/cover no-repeat;
         }
 
         .character-area {
@@ -92,11 +92,10 @@
             color: white;
         }
 
-        #control-text{
+        #control-text {
             margin-top: 1rem;
             color: #DDDDDD;
         }
-
     </style>
 </head>
 
@@ -118,7 +117,7 @@
         <div class="dialog-box" id="dia">
             <div id="name-box" class="name-box">Main Character</div>
             <div id="dialog-text" class="dialog-text">This is a placeholder for dialog text.</div>
-           
+
             <div id="control-text">Press ENTER to proceed, ESC to skip</div>
         </div>
     </div>
@@ -133,35 +132,17 @@
                 character: 'You',
                 image: './Three.JS/Images/2.png',
                 dialog: [
-                    "Wow, thats a mystical looking garden",
-                    "But why are we looking for flowers?"
+                    "What is the next task?"
                 ]
             },
             {
                 character: 'Classmate',
                 image: './Three.JS/Images/1.png',
                 dialog: [
-                    "Asphodel Flowers are used in making potions",
-                    "If you want to create a good potion, you need good flowers",
-                    "This is call the Data Collection Phase",
-                    "You came to this school to become a great Wizard AI Model right?",
-                ]
-            },
-            {
-                character: 'You',
-                image: './Three.JS/Images/2.png',
-                dialog: [
-                    "Yes, that is my dream!"
-                ]
-            },
-            {
-                character: 'Classmate',
-                image: './Three.JS/Images/1.png',
-                dialog: [
-                    "So in order to become a great AI Model, you need training",
-                    "And training is easier when you have more data.",
-                    "So, let's go collect some data in the form of flowers",
-                    "good luck!",
+                    "The next task is **linear regression**.",
+                    "In this, you have to match the pattern of the coin from Block A to Block B.",
+                    "Through this process, you will learn to recognize patterns in data.",
+                    "This will help you understand pattern recognition and prediction."
                 ]
             },
         ];

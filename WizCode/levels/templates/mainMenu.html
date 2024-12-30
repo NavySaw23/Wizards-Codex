@@ -14,14 +14,8 @@
   }
 </style>
 
-<script
-  async
-  src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
-></script>
-<script
-  async
-  src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.min.js"
-></script>
+<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
 
 <script type="importmap">
   {
@@ -36,13 +30,8 @@
 <script type="module">
   let debugmode = false;
   let orthomode = false;
-<<<<<<< HEAD
-//    debugmode = true;
-//    orthomode = true;
-=======
-   debugmode = true;
-   orthomode = true;
->>>>>>> 8b31c8fec0f12febae758eae169152fd5ad7ae68
+  //    debugmode = true;
+  //    orthomode = true;
 
   // ---Imports----------------------------------------------------------------
   import * as THREE from "three";
@@ -456,11 +445,9 @@
     const CharacterShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
     CharacterBody = new CANNON.Body({
       mass: 1, // Give the Character some mass
-<<<<<<< HEAD
+
       position: new CANNON.Vec3(5, 1, 0),
-=======
       position: new CANNON.Vec3(0, 1, 0),
->>>>>>> 8b31c8fec0f12febae758eae169152fd5ad7ae68
       shape: CharacterShape,
       velocity: new CANNON.Vec3(0, 0, 0),
     });
@@ -592,12 +579,12 @@
     addObstacle(x, y, z, rotationYDeg, length, breadth);
   }
 
-  function addProp(x, y, z, rotationYDeg,size, length, breadth, prop) {
+  function addProp(x, y, z, rotationYDeg, size, length, breadth, prop) {
     loader.load(
       prop,
       function (gltf) {
         const propModel = gltf.scene;
-        propModel.scale.set(size,size,size);
+        propModel.scale.set(size, size, size);
         propModel.position.set(x, y, z);
         propModel.rotation.y = rotationYDeg;
         propModel.castShadow = true;
@@ -679,13 +666,13 @@
 
     // function addProp(x, y, z, rotationYDeg,size, length, breadth, prop) {
 
-    addProp( 110 , 0 ,40 , 0, 3 , 25 , 20 , "{%static 'models/fountain.glb'%}" )
-    addProp( 230 , 0 ,30 , 0, 60 , 0 , 0 , "{%static 'models/dead_tree.glb'%}" )
-    addProp( 250 , 0 ,-20 , 0, 60 , 0 , 0 , "{%static 'models/dead_tree.glb'%}" )
-    addProp( 30 , 0 ,60 , 30, 0.2 , 0 , 0 , "{%static 'models/griffin_statue.glb'%}" )
-    addProp( 190 , 0 ,60 , 80, 0.6 , 70 , 45 , "{%static 'models/stadium.glb'%}" )
-    addProp( -5 , 2 ,30 , 90, 5 , 0 ,0 , "{%static 'models/bench.glb'%}" )
-    
+    addProp(110, 0, 40, 0, 3, 25, 20, "{%static 'models/fountain.glb'%}")
+    addProp(230, 0, 30, 0, 60, 0, 0, "{%static 'models/dead_tree.glb'%}")
+    addProp(250, 0, -20, 0, 60, 0, 0, "{%static 'models/dead_tree.glb'%}")
+    addProp(30, 0, 60, 30, 0.2, 0, 0, "{%static 'models/griffin_statue.glb'%}")
+    addProp(190, 0, 60, 80, 0.6, 70, 45, "{%static 'models/stadium.glb'%}")
+    addProp(-5, 2, 30, 90, 5, 0, 0, "{%static 'models/bench.glb'%}")
+
 
   }
 
@@ -828,7 +815,7 @@
     );
     InteractorMesh_L4.rotation.y = Math.PI / 2; // Rotate to lie flat on the ground
     InteractorMesh_L4.position.set(x + 40, y + 1.15, z + 60);
-    const Hexsize_L4 = 2;
+    const Hexsize_L4 = 1.5;
     InteractorMesh_L4.scale.set(Hexsize_L4, Hexsize_L4, Hexsize_L4);
 
     // {% if user_level >= 20 %}

@@ -6,7 +6,7 @@
 
 header {
   /* background-color: #262626; */
-  background-color: white;
+  background-color: #ffffff00;
   position: sticky;
   top: 0;
 }
@@ -25,8 +25,8 @@ li {
 }
 
 a {
-  /* color: white; */
-  color: #262626;
+  color: white;
+  /* color: #262626; */
   text-decoration: none;
 }
 

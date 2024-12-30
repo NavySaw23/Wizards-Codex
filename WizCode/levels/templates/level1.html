@@ -48,7 +48,9 @@
 
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.domElement.style.backgroundColor = 'Black';
+        renderer.domElement.style.backgroundImage = 'url("{% static "img/garden.jpg" %}")';
+        renderer.domElement.style.backgroundSize = 'cover';
+        renderer.domElement.style.backgroundRepeat = 'repeat';
         document.body.appendChild(renderer.domElement);
 
         // Lighting
@@ -84,7 +86,7 @@
         counterElement.style.position = 'absolute';
         counterElement.style.top = '110px';
         counterElement.style.left = '10px';
-        counterElement.style.color = 'White';
+        counterElement.style.color = '#000';
         counterElement.style.fontSize = '24px';
         document.body.appendChild(counterElement);
         updateCounter();
@@ -94,7 +96,7 @@
         timerElement.style.position = 'absolute';
         timerElement.style.top = '140px';
         timerElement.style.left = '10px';
-        timerElement.style.color = 'White';
+        timerElement.style.color = '#000';
         timerElement.style.fontSize = '24px';
         document.body.appendChild(timerElement);
 
@@ -103,7 +105,7 @@
         streakElement.style.position = 'absolute';
         streakElement.style.top = '170px';
         streakElement.style.left = '10px';
-        streakElement.style.color = 'White';
+        streakElement.style.color = '#000';
         streakElement.style.fontSize = '24px';
         document.body.appendChild(streakElement);
         updateStreak();
@@ -115,6 +117,7 @@
         gameOverElement.style.left = '50%';
         gameOverElement.style.transform = 'translate(-50%, -50%)';
         gameOverElement.style.color = 'red';
+        gameOverElement.style.textShadow = '2px 2px 4px #000000';
         gameOverElement.style.fontSize = '2rem';
         gameOverElement.style.textAlign = 'center';
         gameOverElement.style.width = '100%';
@@ -128,7 +131,8 @@
         bonusElement.style.top = '40%';
         bonusElement.style.left = '50%';
         bonusElement.style.transform = 'translate(-50%, -50%)';
-        bonusElement.style.color = 'green';
+        bonusElement.style.color = '#22FF44';
+        bonusElement.style.textShadow = '2px 2px 4px #000000';
         bonusElement.style.fontSize = '48px';
         bonusElement.style.fontWeight = 'bold';
         bonusElement.style.textAlign = 'center';
