@@ -91,7 +91,7 @@
   let CharacterBody,
     CharacterMesh,
     CharacterModel,
-    CharacterSpeed = 20,
+    CharacterSpeed = 30,
     modelLoaded = false;
   let CharacterVelocity = new CANNON.Vec3(0, 0, 0);
   let ColliderOpacity = 0;
@@ -280,82 +280,94 @@
 
   function handleCharacterMovement() {
     document.addEventListener("keydown", (event) => {
-      let angleToCamera =
-        (Math.atan2(
-          CharacterMesh.position.x - camera.position.x,
-          CharacterMesh.position.z - camera.position.z
-        ) *
-          180) /
-        Math.PI;
+        let angleToCamera =
+            (Math.atan2(
+                CharacterMesh.position.x - camera.position.x,
+                CharacterMesh.position.z - camera.position.z
+            ) *
+                180) /
+            Math.PI;
 
-      if (!isMoving && animations["ArmatureAction"]) {
-        isMoving = true;
-        animations["ArmatureAction"].play();
-      }
+        if (!isMoving && animations["ArmatureAction"]) {
+            isMoving = true;
+            animations["ArmatureAction"].play();
+        }
 
-      switch (event.key) {
-        case "ArrowUp":
-          CharacterVelocity.z = -CharacterSpeed;
-          CharacterVelocity.x =
-            -CharacterSpeed * Math.sin((-angleToCamera * Math.PI) / 180);
-          CharacterModel.rotation.y = (Math.PI / 180) * angleToCamera; // Face forward
-          playAnimation("ArmatureAction");
-          break;
-        case "ArrowDown":
-          CharacterVelocity.z = CharacterSpeed;
-          CharacterVelocity.x =
-            CharacterSpeed * Math.sin((-angleToCamera * Math.PI) / 180);
-          CharacterModel.rotation.y = Math.PI + (Math.PI / 180) * angleToCamera; // Face backward
-          playAnimation("ArmatureAction");
-          break;
-        case "ArrowLeft":
-          CharacterVelocity.x = -CharacterSpeed;
-          CharacterModel.rotation.y =
-            Math.PI / 2 + (Math.PI / 180) * angleToCamera; // Face left
-          playAnimation("ArmatureAction");
-          break;
-        case "ArrowRight":
-          CharacterVelocity.x = CharacterSpeed;
-
-          CharacterModel.rotation.y =
-            -Math.PI / 2 + (Math.PI / 180) * angleToCamera; // Face left
-
-          playAnimation("ArmatureAction");
-          break;
-      }
+        switch (event.key) {
+            case "ArrowUp":
+            case "w":
+            case "W":
+                CharacterVelocity.z = -CharacterSpeed;
+                CharacterVelocity.x =
+                    -CharacterSpeed * Math.sin((-angleToCamera * Math.PI) / 180);
+                CharacterModel.rotation.y = (Math.PI / 180) * angleToCamera; // Face forward
+                playAnimation("ArmatureAction");
+                break;
+            case "ArrowDown":
+            case "s":
+            case "S":
+                CharacterVelocity.z = CharacterSpeed;
+                CharacterVelocity.x =
+                    CharacterSpeed * Math.sin((-angleToCamera * Math.PI) / 180);
+                CharacterModel.rotation.y = Math.PI + (Math.PI / 180) * angleToCamera; // Face backward
+                playAnimation("ArmatureAction");
+                break;
+            case "ArrowLeft":
+            case "a":
+            case "A":
+                CharacterVelocity.x = -CharacterSpeed;
+                CharacterModel.rotation.y =
+                    Math.PI / 2 + (Math.PI / 180) * angleToCamera; // Face left
+                playAnimation("ArmatureAction");
+                break;
+            case "ArrowRight":
+            case "d":
+            case "D":
+                CharacterVelocity.x = CharacterSpeed;
+                CharacterModel.rotation.y =
+                    -Math.PI / 2 + (Math.PI / 180) * angleToCamera; // Face right
+                playAnimation("ArmatureAction");
+                break;
+        }
     });
 
     document.addEventListener("keyup", (event) => {
-      switch (event.key) {
-        case "ArrowUp":
-        case "ArrowDown":
-          CharacterVelocity.z = 0;
-          CharacterVelocity.x = 0;
-
-          break;
-        case "ArrowLeft":
-        case "ArrowRight":
-          CharacterVelocity.x = 0;
-
-          break;
-      }
-      // Check if character has stopped moving
-      if (CharacterVelocity.x === 0 && CharacterVelocity.z === 0) {
-        isMoving = false;
-        if (animations["ArmatureAction"]) {
-          animations["ArmatureAction"].stop();
+        switch (event.key) {
+            case "ArrowUp":
+            case "ArrowDown":
+            case "w":
+            case "W":
+            case "s":
+            case "S":
+                CharacterVelocity.z = 0;
+                CharacterVelocity.x = 0;
+                break;
+            case "ArrowLeft":
+            case "ArrowRight":
+            case "a":
+            case "A":
+            case "d":
+            case "D":
+                CharacterVelocity.x = 0;
+                break;
         }
-      }
+        // Check if character has stopped moving
+        if (CharacterVelocity.x === 0 && CharacterVelocity.z === 0) {
+            isMoving = false;
+            if (animations["ArmatureAction"]) {
+                animations["ArmatureAction"].stop();
+            }
+        }
     });
 
     function updateCharacterVelocity() {
-      CharacterBody.velocity.x = CharacterVelocity.x;
-      CharacterBody.velocity.z = CharacterVelocity.z;
-      CharacterBody.position.y = 1;
-      requestAnimationFrame(updateCharacterVelocity);
+        CharacterBody.velocity.x = CharacterVelocity.x;
+        CharacterBody.velocity.z = CharacterVelocity.z;
+        CharacterBody.position.y = 1;
+        requestAnimationFrame(updateCharacterVelocity);
     }
     updateCharacterVelocity();
-  }
+}
 
   // ---Helper-Functions------------------------------------------------------
 
@@ -862,3 +874,4 @@
   update();
   animate();
 </script>
+``` 
