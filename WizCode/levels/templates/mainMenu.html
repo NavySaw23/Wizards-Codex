@@ -442,67 +442,29 @@
 
   function addCharacter() {
     const CharacterGeometry = new THREE.BoxGeometry(2, 2, 2);
-    const CharacterMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
-      transparent: true,
-      opacity: ColliderOpacity,
+    const CharacterMaterial = new THREE.MeshStandardMaterial({
+        color: 0xff0000,
+        transparent: true,
+        opacity: ColliderOpacity,
     });
     CharacterMesh = new THREE.Mesh(CharacterGeometry, CharacterMaterial);
     CharacterMesh.castShadow = true;
     CharacterMesh.receiveShadow = true;
-    if (debugmode) {
-      scene.add(CharacterMesh);
-    }
+    CharacterMesh.position.set(0, 1, 0);
+    scene.add(CharacterMesh);
+
+    // Use the cube as the character model for movement/animation logic
+    CharacterModel = CharacterMesh;
+    modelLoaded = true;
 
     const CharacterShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
     CharacterBody = new CANNON.Body({
-      mass: 1, // Give the Character some mass
-
-      position: new CANNON.Vec3(5, 1, 0),
-      position: new CANNON.Vec3(0, 1, 0),
-      shape: CharacterShape,
-      velocity: new CANNON.Vec3(0, 0, 0),
+        mass: 1,
+        position: new CANNON.Vec3(0, 1, 0),
+        shape: CharacterShape,
+        velocity: new CANNON.Vec3(0, 0, 0),
     });
     world.addBody(CharacterBody);
-
-    loader.load(
-      "{%static 'models/robo_toon.glb'%}",
-      function (gltf) {
-        CharacterModel = gltf.scene;
-        CharacterModel.scale.set(0.2, 0.2, 0.2); // Set the scale of the model
-        CharacterModel.position.set(0, 1, 0); // Set the position of the model
-        scene.add(CharacterModel); // Add the model to the scene
-
-        // Setup animation mixer
-        mixer = new THREE.AnimationMixer(CharacterModel);
-        //         const clips = gltf.animations;
-        // const clip = THREE.AnimationClip.findByName(clips, 'ArmatureAction');
-        // const action = mixer.clipAction (clip);
-        // action.play();
-        // Store all animations
-        gltf.animations.forEach((clip) => {
-          const action = mixer.clipAction(clip);
-          animations[clip.name] = action;
-        });
-
-        // Set initial idle state
-        if (animations["ArmatureAction"]) {
-          animations["ArmatureAction"].setEffectiveWeight(1);
-          animations["ArmatureAction"].stop();
-        }
-
-        modelLoaded = true;
-      },
-      undefined,
-      function (error) {
-        console.error("An error occurred while loading the model:", error);
-      }
-    );
-
-    // Later in your code...
-    if (modelLoaded) {
-      console.log(CharacterModel.position);
-    }
   }
 
   // Function to play animation with crossfade
@@ -874,4 +836,3 @@
   update();
   animate();
 </script>
-``` 
